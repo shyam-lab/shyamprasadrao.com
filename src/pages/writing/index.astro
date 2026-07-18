@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const all = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+// Sections show in this order. A section with no posts shows a placeholder line.
+const sections = [
+  { topic: 'Strategy', empty: null },
+  { topic: 'Quantum',  empty: 'Reading notes on error correction in progress — the Shor code write-up lands here first.' },
+  { topic: 'AI',       empty: 'Notes on agentic computing coming soon.' },
+  { topic: 'Hardware', empty: null },
+  { topic: 'Reading',  empty: null },
+];
+---
+<Base title="Writing — Shyam Prasad Rao">
+  <p class="lede">Essays, research notes, and things I'm reading. Filed by topic as they accumulate.</p>
+
+  {sections.map((s) => {
+    const items = all.filter((p) => p.data.topic === s.topic);
+    if (items.length === 0 && !s.empty) return null;
+    return (
+      <>
+        <h2 class="sec">{s.topic}</h2>
+        {items.length > 0
+          ? items.map((p) => (
+              <a class="item" href={`/writing/${p.id}`}>
+                <div class="it-title">{p.data.title}</div>
+                <div class="it-meta"><span>{fmt(p.data.date)}</span><span class="tag">{p.data.topic}</span></div>
+                <div class="it-desc">{p.data.summary}</div>
+              </a>
+            ))
+          : <div class="empty">{s.empty}</div>}
+      </>
+    );
+  })}
+</Base>

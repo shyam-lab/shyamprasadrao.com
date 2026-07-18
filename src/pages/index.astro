@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 4);
+
+const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+---
+<Base>
+  <p class="lede">
+    I work on <strong>commercial PC strategy</strong> at HP — portfolio, silicon
+    partnerships, and where computing is heading. Off the clock I read about
+    <strong>quantum information</strong> and build small things. This is where I keep the notes.
+  </p>
+
+  <div class="lately"><b>Lately:</b> quantum error correction, agentic systems, and the economics of the AI PC.</div>
+
+  <h2 class="sec">Recent writing</h2>
+  {posts.map((p) => (
+    <a class="item" href={`/writing/${p.id}`}>
+      <div class="it-title">{p.data.title}</div>
+      <div class="it-meta"><span>{fmt(p.data.date)}</span><span class="tag">{p.data.topic}</span></div>
+      <div class="it-desc">{p.data.summary}</div>
+    </a>
+  ))}
+</Base>
