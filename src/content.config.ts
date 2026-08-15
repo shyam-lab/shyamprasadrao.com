@@ -8,7 +8,7 @@ const posts = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.date(),
-    topic: z.enum(['Strategy', 'Quantum', 'AI', 'Hardware', 'Reading']),
+    topic: z.enum(['Personal', 'Strategy', 'Quantum', 'AI', 'Hardware', 'Reading']),
     summary: z.string(),
     draft: z.boolean().default(false),
   }),
