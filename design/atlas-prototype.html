@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Atlas — shyamprasadrao.com</title>
+<style>
+  /* ===== Tokens copied verbatim from src/layouts/Base.astro ===== */
+  :root{
+    --paper:#F7F5F0; --ink:#1C1B18; --ink-soft:#4A4842; --faint:#8B887E;
+    --rule:#DAD6CB; --accent:#2F4B4B; --accent-soft:#6E8B87; --mark:#B4552E;
+    --maxw:720px;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* ===== prototype chrome (not part of the site) ===== */
+  .proto-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:8px 18px;font-size:12px;background:#1C1B18;color:#DAD6CB;font-family:var(--mono)}
+  .proto-bar .tag{opacity:.6;margin-right:2px}
+  .proto-bar button{font:inherit;cursor:pointer;padding:3px 11px;border-radius:99px;
+    border:1px solid #4A4842;background:transparent;color:#DAD6CB}
+  .proto-bar button:hover{border-color:#F7F5F0;color:#F7F5F0}
+
+  /* ===== site header, as in Base.astro ===== */
+  header{padding:48px 0 0}
+  .name{font-size:26px;font-weight:600;letter-spacing:-.01em;text-decoration:none;color:var(--ink);cursor:pointer}
+  .tagline{font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;color:var(--faint);margin-top:4px}
+  nav{margin-top:26px;padding-bottom:14px;border-bottom:1px solid var(--rule);display:flex;gap:22px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:13px;letter-spacing:.03em}
+  nav a{text-decoration:none;color:var(--ink-soft);padding-bottom:2px;border-bottom:1.5px solid transparent;cursor:pointer}
+  nav a:hover{color:var(--ink);border-color:var(--accent)}
+  nav a.active{color:var(--accent);border-color:var(--accent)}
+
+  main{padding:40px 0 80px;min-height:50vh}
+  .view{display:none;animation:fadein .25s ease}
+  .view.on{display:block}
+  @keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+  /* ===== shared, in site voice ===== */
+  .lede{font-size:19px;line-height:1.55;color:var(--ink-soft);max-width:56ch}
+  .lede strong{color:var(--ink);font-weight:600}
+  h1.page{font-size:30px;letter-spacing:-.02em;margin:6px 0 4px;line-height:1.2}
+  h2.sec{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    font-weight:600;margin:44px 0 16px;display:flex;align-items:center;gap:10px}
+  h2.sec::before{content:"";width:14px;height:1px;background:var(--mark)}
+  .crumbs{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.02em;margin-bottom:18px}
+  .crumbs a{color:var(--accent-soft);text-decoration:none;cursor:pointer}
+  .crumbs a:hover{color:var(--accent)}
+  .crumbs .sep{margin:0 6px;opacity:.6}
+
+  .legend{font-family:var(--mono);font-size:12px;color:var(--faint);display:flex;gap:18px;flex-wrap:wrap;margin-top:20px}
+  .dotk{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:0}
+  .dotk.done{background:var(--accent)}
+  .dotk.wip{background:var(--mark)}
+  .dotk.soon{background:transparent;border:1.5px dashed var(--faint)}
+
+  /* the "lately" pattern reused as editorial note */
+  .lately{font-family:var(--mono);font-size:13px;color:var(--ink-soft);border-left:2px solid var(--mark);
+    padding:2px 0 2px 14px;margin:22px 0}
+  .lately b{color:var(--ink)}
+
+  /* ===== atlas graph — breaks out like a book plate on wide screens ===== */
+  .plate{margin:34px 0 8px}
+  @media(min-width:1000px){.plate{margin-left:-110px;margin-right:-110px}}
+  .plate-caption{font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.02em;text-align:center;margin-top:6px}
+  svg text{font-family:var(--mono);fill:var(--ink)}
+  .gedge{stroke:var(--rule);stroke-width:1.5}
+  .gnode{cursor:pointer}
+  .gnode circle.halo{fill:var(--accent);opacity:0;transition:opacity .15s}
+  .gnode:hover circle.halo{opacity:.12}
+  .gnode circle.core{fill:var(--paper);stroke-width:2}
+  .gnode[data-status="done"] circle.core{stroke:var(--accent)}
+  .gnode[data-status="wip"] circle.core{stroke:var(--mark)}
+  .gnode[data-status="soon"] circle.core{stroke:var(--faint);stroke-dasharray:4 3}
+  .gnode.center circle.core{fill:var(--accent);stroke:var(--accent)}
+  .gnode text{font-size:12.5px;font-weight:600}
+  .gnode text.sub{font-size:10px;font-weight:400;fill:var(--faint)}
+
+  /* ===== option-2 map style: boxes with bullets + labeled relationship edges ===== */
+  .b{fill:#FCFBF5;stroke-width:1.2}
+  .b.done{stroke:var(--accent)}
+  .b.wip{stroke:var(--mark)}
+  .b.soon{stroke:var(--faint);stroke-dasharray:4 3}
+  .btitle{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:13.5px;font-weight:700;fill:var(--ink)}
+  .soon .btitle, g.soonbox .btitle{fill:var(--faint)}
+  .bitem{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:11.5px;fill:var(--ink-soft)}
+  g.soonbox .bitem{fill:var(--faint)}
+  .bitem.link{fill:var(--accent);cursor:pointer;font-weight:600}
+  .bitem.link:hover{text-decoration:underline}
+  .bstat{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase}
+  .bstat.done{fill:var(--accent)} .bstat.wip{fill:var(--mark)} .bstat.soon{fill:var(--faint)}
+  .cbox rect{fill:var(--ink);stroke:var(--ink)}
+  .cbox text{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.14em;fill:var(--paper)}
+  .edge2{stroke:#A9A395;stroke-width:1.1;fill:none}
+  .edge2.rel{stroke-dasharray:5 4}
+  .edge2.lead{stroke-dasharray:1.5 3;}
+  .elabel{font-family:var(--mono);font-size:9.5px;font-style:italic;fill:var(--faint)}
+  .elabel-bg{fill:var(--paper);opacity:.85}
+  .maplegend text{font-family:var(--mono);font-size:10px;fill:var(--faint)}
+  .clickbox{cursor:pointer}
+  .clickbox:hover rect.b{fill:#F3F0E7}
+
+  /* item rows, exactly the site's list pattern */
+  .item{display:block;text-decoration:none;color:inherit;padding:16px 0;border-bottom:1px solid var(--rule);cursor:pointer}
+  .item:hover .it-title{color:var(--accent)}
+  .it-title{font-size:19px;font-weight:600;letter-spacing:-.01em;transition:color .15s}
+  .it-meta{font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.02em;margin-top:5px;display:flex;gap:10px;flex-wrap:wrap}
+  .tag{color:var(--accent-soft)}
+  .it-desc{font-size:15px;color:var(--ink-soft);margin-top:7px;max-width:60ch}
+
+  /* concept-map branches: quiet columns, hairline rules, no cards */
+  .branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 28px;margin-top:8px}
+  .branch h3{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    font-weight:600;margin:26px 0 4px;display:flex;align-items:center;gap:8px}
+  .branch h3::before{content:"";width:10px;height:1px;background:var(--mark)}
+  .cnode{display:flex;align-items:baseline;gap:9px;padding:8px 0;border-bottom:1px solid var(--rule);
+    font-size:15.5px;cursor:pointer;color:var(--ink)}
+  .cnode:hover{color:var(--accent)}
+  .cnode.soon{color:var(--faint)}
+  .cnode .dotk{flex:none}
+  .cnode .arrow{font-family:var(--mono);font-size:11px;color:var(--accent-soft);margin-left:auto}
+
+  /* evergreen note = the site's .post styles */
+  .post h1{font-size:30px;letter-spacing:-.02em;margin:6px 0 4px;line-height:1.2}
+  .post .it-meta{margin-bottom:26px}
+  .post p{font-size:17px;color:var(--ink-soft);margin:0 0 18px;max-width:62ch}
+  .post h2{font-size:21px;margin:32px 0 12px;color:var(--ink);letter-spacing:-.01em}
+  .post h2 .qnum{font-family:var(--mono);font-size:11px;color:var(--mark);letter-spacing:.1em;vertical-align:3px;margin-right:8px}
+  .post a{color:var(--accent);text-underline-offset:2px;cursor:pointer}
+  .post strong{color:var(--ink)}
+  .formula{font-family:var(--mono);background:#EDEAE1;border:1px solid var(--rule);padding:12px 16px;
+    margin:0 0 18px;font-size:14px;overflow-x:auto;color:var(--ink)}
+  .pill{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em}
+  .pill.pub{color:var(--accent)}
+
+  .connected{border-top:1px solid var(--rule);margin-top:36px;padding-top:6px}
+  .next-links{display:flex;flex-direction:column}
+  .next-links a{font-size:15.5px;color:var(--accent);text-decoration:none;cursor:pointer;padding:8px 0;border-bottom:1px solid var(--rule)}
+  .next-links a:hover{text-underline-offset:2px;text-decoration:underline}
+  .next-links .st{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:8px}
+
+  /* coming soon */
+  .soonflag{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--mark);
+    border:1.5px dashed var(--mark);padding:4px 14px;display:inline-block;margin:10px 0 4px}
+  .reading li{list-style:none;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15.5px;color:var(--ink-soft)}
+  .reading .src{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:8px}
+
+  footer{border-top:1px solid var(--rule);padding:26px 0 60px;font-family:var(--mono);font-size:12px;color:var(--faint);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--accent-soft);text-decoration:none}
+
+  #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--paper);
+    padding:9px 18px;font-family:var(--mono);font-size:12.5px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:99}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:520px){
+    .it-title,.lede{font-size:17px}
+    header{padding-top:32px}
+    .post h1,h1.page{font-size:25px}
+  }
+</style>
+</head>
+<body>
+
+<div class="proto-bar">
+  <span class="tag">PROTOTYPE in your site's design · jump →</span>
+  <button onclick="showView('atlas')">Atlas</button>
+  <button onclick="showView('map')">Concept map</button>
+  <button onclick="showView('note')">Evergreen note</button>
+  <button onclick="showView('soon')">Coming-soon node</button>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="masthead"><a class="name" onclick="showView('atlas')">Shyam Prasad Rao</a></div>
+    <div class="tagline">Hard problems — technical, commercial, and otherwise.</div>
+    <nav>
+      <a>Home</a>
+      <a>Writing</a>
+      <a>Projects</a>
+      <a class="active" onclick="showView('atlas')">Atlas</a>
+      <a>About</a>
+      <a>GitHub&#8599;</a>
+    </nav>
+  </header>
+
+  <main>
+
+  <!-- ============ VIEW 1 : ATLAS ============ -->
+  <section class="view on" id="view-atlas">
+    <p class="lede">A living map of <strong>quantum computing</strong> — every node a concept, every edge a relationship. I publish nodes as I truly understand them; the dashed ones are where I'm headed next.</p>
+
+    <div class="lately"><b>Lately:</b> randomized benchmarking, decoder architectures, and what spec-sheet fidelity numbers actually mean.</div>
+
+    <div class="legend">
+      <span><span class="dotk done"></span>published</span>
+      <span><span class="dotk wip"></span>in progress</span>
+      <span><span class="dotk soon"></span>coming soon</span>
+    </div>
+
+    <div class="plate">
+      <svg viewBox="0 0 960 560" width="100%" role="img" aria-label="Quantum computing concept map">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- ===== edges (drawn first) ===== -->
+        <!-- Math describes QM -->
+        <path class="edge2" d="M 215 95 L 295 75" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="225" y="70" width="58" height="13"/><text class="elabel" x="254" y="80" text-anchor="middle">describes</text>
+        <!-- QM forms the basis of QI -->
+        <path class="edge2" d="M 480 72 L 575 88" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="482" y="64" width="92" height="13"/><text class="elabel" x="528" y="74" text-anchor="middle">forms the basis</text>
+        <!-- Math grounds QC -->
+        <path class="edge2" d="M 175 148 L 390 248" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="245" y="185" width="52" height="13"/><text class="elabel" x="271" y="195" text-anchor="middle">grounds</text>
+        <!-- QI enables QC -->
+        <path class="edge2" d="M 640 143 L 530 246" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="565" y="185" width="48" height="13"/><text class="elabel" x="589" y="195" text-anchor="middle">enables</text>
+        <!-- QI implemented on Hardware -->
+        <path class="edge2 rel" d="M 700 143 L 830 205" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="712" y="163" width="94" height="13"/><text class="elabel" x="759" y="173" text-anchor="middle">implemented on</text>
+        <!-- Classical generalized by QC -->
+        <path class="edge2 rel" d="M 213 358 L 388 285" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="243" y="312" width="94" height="13"/><text class="elabel" x="290" y="322" text-anchor="middle">generalized by</text>
+        <!-- Classical extends Math -->
+        <path class="edge2 rel" d="M 125 330 L 122 150" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="97" y="233" width="50" height="13"/><text class="elabel" x="122" y="243" text-anchor="middle">extends</text>
+        <!-- QC enables Algorithms -->
+        <path class="edge2" d="M 455 290 L 395 398" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="398" y="336" width="42" height="13"/><text class="elabel" x="419" y="346" text-anchor="middle">runs</text>
+        <!-- QC runs on Hardware -->
+        <path class="edge2 rel" d="M 570 265 L 765 260" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="633" y="252" width="50" height="13"/><text class="elabel" x="658" y="262" text-anchor="middle">runs on</text>
+        <!-- Algorithms solve Applications -->
+        <path class="edge2" d="M 468 450 L 550 450" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="482" y="442" width="40" height="13"/><text class="elabel" x="502" y="452" text-anchor="middle">solves</text>
+        <!-- QC leads to Applications -->
+        <path class="edge2 lead" d="M 520 290 L 610 410" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="548" y="340" width="52" height="13"/><text class="elabel" x="574" y="350" text-anchor="middle">leads to</text>
+        <!-- Hardware characterized by Noise & Benchmarking -->
+        <path class="edge2" d="M 855 315 L 855 375" marker-end="url(#arr)"/>
+        <rect class="elabel-bg" x="808" y="337" width="96" height="13"/><text class="elabel" x="856" y="347" text-anchor="middle">characterized by</text>
+
+        <!-- ===== boxes ===== -->
+        <g onclick="toast('would open the Mathematics map')" class="clickbox">
+          <rect class="b done" x="40" y="55" width="175" height="93" />
+          <text class="btitle" x="52" y="75">Mathematical Foundations</text>
+          <text class="bitem" x="52" y="93">· Linear Algebra</text>
+          <text class="bitem" x="52" y="107">· Complex Numbers</text>
+          <text class="bitem" x="52" y="121">· Probability Theory</text>
+          <text class="bitem" x="52" y="135">· Information Theory</text>
+        </g>
+        <g onclick="toast('in progress — quantum mechanics essentials')" class="clickbox">
+          <rect class="b wip" x="295" y="28" width="185" height="93"/>
+          <text class="btitle" x="307" y="48">Quantum Mechanics</text>
+          <text class="bitem" x="307" y="66">· Superposition</text>
+          <text class="bitem" x="307" y="80">· Entanglement</text>
+          <text class="bitem" x="307" y="94">· Interference</text>
+          <text class="bitem" x="307" y="108">· Measurement Postulate</text>
+        </g>
+        <g onclick="toast('would open Quantum Information — the hub of the site')" class="clickbox">
+          <rect class="b done" x="575" y="50" width="190" height="93"/>
+          <text class="btitle" x="587" y="70">Quantum Information</text>
+          <text class="bitem" x="587" y="88">· Qubits &amp; States</text>
+          <text class="bitem" x="587" y="102">· Density Matrices</text>
+          <text class="bitem" x="587" y="116">· Channels · CPTP · Kraus</text>
+          <text class="bitem" x="587" y="130">· Entanglement Theory</text>
+        </g>
+        <g class="soonbox" onclick="toast('coming soon — the hardware landscape')">
+          <rect class="b soon" x="765" y="205" width="170" height="110"/>
+          <text class="btitle" x="777" y="225">Hardware &amp; Platforms</text>
+          <text class="bitem" x="777" y="243">· Superconducting</text>
+          <text class="bitem" x="777" y="257">· Trapped Ion</text>
+          <text class="bitem" x="777" y="271">· Photonic</text>
+          <text class="bitem" x="777" y="285">· Neutral Atom</text>
+          <text class="bitem" x="777" y="299">· Topological</text>
+        </g>
+        <g onclick="toast('would open Classical Computing')" class="clickbox">
+          <rect class="b done" x="40" y="330" width="173" height="78"/>
+          <text class="btitle" x="52" y="350">Classical Computing</text>
+          <text class="bitem" x="52" y="368">· Bits &amp; Boolean Logic</text>
+          <text class="bitem" x="52" y="382">· Complexity Theory</text>
+          <text class="bitem" x="52" y="396">· Shannon Information</text>
+        </g>
+        <g class="cbox">
+          <rect x="390" y="245" width="180" height="45"/>
+          <text x="480" y="272" text-anchor="middle">QUANTUM COMPUTING</text>
+        </g>
+        <g onclick="toast('in progress — the algorithm family tree')" class="clickbox">
+          <rect class="b wip" x="290" y="398" width="178" height="93"/>
+          <text class="btitle" x="302" y="418">Algorithms</text>
+          <text class="bitem" x="302" y="436">· Grover — search</text>
+          <text class="bitem" x="302" y="450">· Shor — factoring</text>
+          <text class="bitem" x="302" y="464">· QFT &amp; Phase Estimation</text>
+          <text class="bitem" x="302" y="478">· VQE · QAOA</text>
+        </g>
+        <g class="soonbox" onclick="toast('coming soon — chemistry, finance, AI, crypto')">
+          <rect class="b soon" x="550" y="408" width="168" height="93"/>
+          <text class="btitle" x="562" y="428">Applications</text>
+          <text class="bitem" x="562" y="446">· Cryptography</text>
+          <text class="bitem" x="562" y="460">· Optimization</text>
+          <text class="bitem" x="562" y="474">· Simulation · Chemistry</text>
+          <text class="bitem" x="562" y="488">· Machine Learning</text>
+        </g>
+        <g onclick="showView('map')" class="clickbox">
+          <rect class="b done" x="765" y="375" width="175" height="93"/>
+          <text class="btitle" x="777" y="395">Noise &amp; Benchmarking</text>
+          <text class="bitem" x="777" y="413">· T1 · T2 · Decoherence</text>
+          <text class="bitem" x="777" y="427">· Randomized Benchmarking</text>
+          <text class="bitem" x="777" y="441">· Error Correction</text>
+          <text class="bitem link" x="777" y="459">open this map →</text>
+        </g>
+
+        <!-- ===== edge legend ===== -->
+        <g class="maplegend">
+          <line class="edge2" x1="40" y1="510" x2="80" y2="510"/><text x="88" y="514">builds on / enables</text>
+          <line class="edge2 rel" x1="230" y1="510" x2="270" y2="510"/><text x="278" y="514">relies on / runs on</text>
+          <line class="edge2 lead" x1="415" y1="510" x2="455" y2="510"/><text x="463" y="514">leads to</text>
+        </g>
+      </svg>
+      <div class="plate-caption">fig. 1 — the atlas. boxes are territories, arrows are relationships. click Noise &amp; Benchmarking to go one level down.</div>
+    </div>
+
+    <h2 class="sec">Learning paths</h2>
+    <a class="item" onclick="toast('a curated journey — each stop is a note in the graph')">
+      <div class="it-title">From zero to your first circuit</div>
+      <div class="it-meta"><span>7 stops</span><span class="tag">Math → QM → Qubits → Circuits</span></div>
+      <div class="it-desc">The dependency chain in order — answers "what should I learn next?" at every step.</div>
+    </a>
+    <a class="item" onclick="showView('map')">
+      <div class="it-title">Why quantum computers fail — and how we fix them</div>
+      <div class="it-meta"><span>9 stops</span><span class="tag">Noise → Characterization → QEC</span></div>
+      <div class="it-desc">From decoherence to the surface code, via how we actually measure error.</div>
+    </a>
+    <a class="item" onclick="toast('the uniquely-you path — physics to products')">
+      <div class="it-title">From physics to products</div>
+      <div class="it-meta"><span>11 stops</span><span class="tag">Physics → Stack → Industry</span></div>
+      <div class="it-desc">Where most guides stop at algorithms, this one continues into roadmaps and strategy.</div>
+    </a>
+
+    <h2 class="sec">Recently tended</h2>
+    <a class="item" onclick="showView('note')">
+      <div class="it-title">Randomized Benchmarking</div>
+      <div class="it-meta"><span>Aug 12</span><span class="tag">Quantum</span></div>
+      <div class="it-desc">Rewrote the "why SPAM-free" section after re-reading the non-Markovian RB paper.</div>
+    </a>
+    <a class="item" onclick="showView('soon')">
+      <div class="it-title">Decoder Architectures</div>
+      <div class="it-meta"><span>Aug 08</span><span class="tag">Quantum</span><span>🚧 new frontier node</span></div>
+      <div class="it-desc">Collecting papers on matching and RL-based decoders for the surface code.</div>
+    </a>
+  </section>
+
+  <!-- ============ VIEW 2 : CONCEPT MAP ============ -->
+  <section class="view" id="view-map">
+    <div class="crumbs"><a onclick="showView('atlas')">atlas</a><span class="sep">/</span>noise &amp; error correction</div>
+    <h1 class="page">Noise &amp; Error Correction</h1>
+    <p class="lede" style="margin-top:10px;font-size:17px">Read left to right: where noise comes from, how we model it, how we write it down, how we measure it, and what we do about it. Characterization is the bridge almost nobody draws.</p>
+
+    <div class="legend">
+      <span><span class="dotk done"></span>published</span>
+      <span><span class="dotk wip"></span>drafting</span>
+      <span><span class="dotk soon"></span>coming soon</span>
+    </div>
+
+    <div class="plate">
+      <svg viewBox="0 0 960 330" width="100%" role="img" aria-label="Noise and error correction concept map">
+        <defs>
+          <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- chain edges -->
+        <path class="edge2" d="M 185 135 L 218 110" marker-end="url(#arr2)"/>
+        
+        <path class="edge2" d="M 388 105 L 420 135" marker-end="url(#arr2)"/>
+        
+        <path class="edge2" d="M 578 150 L 610 115" marker-end="url(#arr2)"/>
+        
+        <path class="edge2" d="M 780 110 L 812 135" marker-end="url(#arr2)"/>
+        
+        <!-- feedback edge -->
+        <path class="edge2 lead" d="M 880 265 C 800 320, 300 320, 115 240" marker-end="url(#arr2)"/>
+        <rect class="elabel-bg" x="420" y="297" width="150" height="13"/><text class="elabel" x="495" y="307" text-anchor="middle">changes the noise you see</text>
+
+        <!-- 1 Sources -->
+        <g>
+          <rect class="b wip" x="25" y="135" width="160" height="105"/>
+          <text class="btitle" x="37" y="155">1 · Sources</text>
+          <text class="bitem link" x="37" y="173" onclick="toast('would open Environment / decoherence')">· Environment</text>
+          <text class="bitem link" x="37" y="187" onclick="toast('would open Crosstalk')">· Crosstalk</text>
+          <text class="bitem" x="37" y="201">· Control Errors ◦</text>
+          <text class="bitem" x="37" y="215">· Measurement Errors ◦</text>
+        </g>
+        <!-- 2 Models -->
+        <g>
+          <rect class="b done" x="218" y="30" width="170" height="105"/>
+          <text class="btitle" x="230" y="50">2 · Models</text>
+          <text class="bitem link" x="230" y="68" onclick="toast('would open Bit Flip / Phase Flip')">· Bit Flip · Phase Flip</text>
+          <text class="bitem link" x="230" y="82" onclick="toast('would open Depolarizing')">· Depolarizing</text>
+          <text class="bitem link" x="230" y="96" onclick="toast('would open Amplitude Damping')">· Amplitude Damping</text>
+          <text class="bitem" x="230" y="110">· Dephasing ◦</text>
+        </g>
+        <!-- 3 Representation -->
+        <g>
+          <rect class="b done" x="420" y="135" width="158" height="105"/>
+          <text class="btitle" x="432" y="155">3 · Representation</text>
+          <text class="bitem link" x="432" y="173" onclick="toast('would open Density Matrix')">· Density Matrix</text>
+          <text class="bitem link" x="432" y="187" onclick="toast('would open Kraus Operators')">· Kraus Operators</text>
+          <text class="bitem link" x="432" y="201" onclick="toast('would open Superoperators')">· Superoperators</text>
+          <text class="bitem link" x="432" y="215" onclick="toast('would open Choi Matrix')">· Choi Matrix</text>
+        </g>
+        <!-- 4 Characterization -->
+        <g>
+          <rect class="b wip" x="610" y="15" width="170" height="119"/>
+          <text class="btitle" x="622" y="35">4 · Characterization</text>
+          <text class="bitem link" x="622" y="53" onclick="toast('would open State / Process Tomography')">· State · Process Tomography</text>
+          <text class="bitem link" x="622" y="67" onclick="showView('note')">· Randomized Benchmarking →</text>
+          <text class="bitem" x="622" y="81">· Cycle Benchmarking ◦</text>
+          <text class="bitem" x="622" y="95">· Gate Set Tomography ◌</text>
+          <text class="bitem" x="622" y="109">· Mirror RB ◌</text>
+        </g>
+        <!-- 5 Mitigation -->
+        <g>
+          <rect class="b done" x="812" y="135" width="140" height="133"/>
+          <text class="btitle" x="824" y="155">5 · Mitigation</text>
+          <text class="bitem link" x="824" y="173" onclick="toast('would open Error Mitigation')">· Error Mitigation</text>
+          <text class="bitem link" x="824" y="187" onclick="toast('would open Twirling')">· Twirling</text>
+          <text class="bitem link" x="824" y="201" onclick="toast('would open Surface Code')">· Surface Code</text>
+          <text class="bitem link" x="824" y="215" onclick="showView('soon')">· Decoders 🚧</text>
+          <text class="bitem" x="824" y="229">· Fault Tolerance ◌</text>
+        </g>
+
+        <rect class="elabel-bg" x="158" y="106" width="72" height="13"/><text class="elabel" x="194" y="116" text-anchor="middle">give rise to</text>
+        <rect class="elabel-bg" x="356" y="112" width="84" height="13"/><text class="elabel" x="398" y="122" text-anchor="middle">formalized as</text>
+        <rect class="elabel-bg" x="548" y="122" width="80" height="13"/><text class="elabel" x="588" y="132" text-anchor="middle">estimated via</text>
+        <rect class="elabel-bg" x="756" y="112" width="48" height="13"/><text class="elabel" x="780" y="122" text-anchor="middle">informs</text>
+
+        <g class="maplegend">
+          <text x="25" y="285">◦ drafting&#160;&#160;&#160;◌ coming soon&#160;&#160;&#160;teal links are published notes</text>
+        </g>
+      </svg>
+      <div class="plate-caption">fig. 2 — read left to right; the dotted return arrow is the loop most textbooks omit.</div>
+    </div>
+
+    <div class="lately" style="margin-top:36px"><b>Why I drew it this way:</b> textbooks teach models and codes in separate chapters, so learners never see that characterization is the bridge — you can't correct what you can't measure. Column 4 is where I've spent the last six months.</div>
+  </section>
+
+  <!-- ============ VIEW 3 : EVERGREEN NOTE ============ -->
+  <section class="view" id="view-note">
+    <div class="crumbs"><a onclick="showView('atlas')">atlas</a><span class="sep">/</span><a onclick="showView('map')">noise &amp; error correction</a><span class="sep">/</span>randomized benchmarking</div>
+    <article class="post">
+      <h1>Randomized Benchmarking</h1>
+      <div class="it-meta"><span class="pill pub">● published</span><span>last tended Aug 12, 2026</span><span class="tag">Quantum</span><span>6 min</span></div>
+
+      <h2><span class="qnum">Q1</span>What is it?</h2>
+      <p>Randomized benchmarking estimates the average error rate of your gates by running many random sequences of Clifford gates, appending the one gate that should undo the whole sequence, and checking how often the qubit actually comes back. Plot survival probability against sequence length and you get an exponential decay; the decay rate is your average gate fidelity.</p>
+      <div class="formula">p(m) = A·f<sup>m</sup> + B &nbsp;&nbsp;→&nbsp;&nbsp; r = (1 − f)(d − 1)/d</div>
+
+      <h2><span class="qnum">Q2</span>Why does it exist?</h2>
+      <p>Process tomography tells you everything about a gate, but it's expensive and — worse — it can't separate the gate's errors from the errors in preparing and measuring the qubit (SPAM). RB's random twirling averages any noise channel into a depolarizing one, and the decay <em>rate</em> is immune to SPAM by construction. You trade complete information for one honest number.</p>
+
+      <h2><span class="qnum">Q3</span>How does it connect?</h2>
+      <p>Upstream, RB assumes the machinery of <a onclick="toast('would open CPTP Maps')">CPTP maps</a> and the <a onclick="toast('would open Clifford Group')">Clifford group</a>. Sideways, its cousins fix its blind spots: <a onclick="toast('would open Interleaved RB')">Interleaved RB</a> isolates a single gate, <a onclick="toast('would open Cycle Benchmarking')">Cycle Benchmarking</a> handles multi-qubit cycles, Mirror RB scales up. Downstream, RB numbers feed the error budgets that <a onclick="toast('would open Surface Code')">error correction</a> thresholds are judged against — and the standard analysis quietly assumes Markovian noise, which is exactly where the research frontier begins.</p>
+
+      <h2><span class="qnum">Q4</span>Where is it used?</h2>
+      <p>Every hardware vendor quotes RB numbers on their spec sheets — it's the closest thing quantum hardware has to a standard benchmark, and the fine print (which variant, which gate set) is where roadmap claims get interesting. If you read one paper, read Magesan et&nbsp;al. 2011; if you read two, follow it with the non-Markovian RB work that shows what the standard protocol can't see.</p>
+
+      <div class="connected">
+        <h2 class="sec" style="margin-top:20px">Continue in the graph</h2>
+        <div class="next-links">
+          <a onclick="toast('would open Interleaved RB')">Interleaved RB<span class="st">published</span></a>
+          <a onclick="toast('would open Cycle Benchmarking')">Cycle Benchmarking<span class="st">drafting</span></a>
+          <a onclick="showView('soon')">Decoder Architectures<span class="st">🚧 coming soon</span></a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ VIEW 4 : COMING SOON ============ -->
+  <section class="view" id="view-soon">
+    <div class="crumbs"><a onclick="showView('atlas')">atlas</a><span class="sep">/</span><a onclick="showView('map')">noise &amp; error correction</a><span class="sep">/</span>decoder architectures</div>
+    <article class="post">
+      <h1>Decoder Architectures</h1>
+      <div class="soonflag">🚧 under construction — this is what I'm learning right now</div>
+      <p style="margin-top:14px">A coming-soon node isn't a dead link. It shows the shape of what's ahead, what I'm reading to get there, and where the map grows next.</p>
+
+      <h2 class="sec">Currently on my desk</h2>
+      <ul class="reading">
+        <li>Minimum-weight perfect matching, and where it breaks down at scale<span class="src">— foundations</span></li>
+        <li>Neural-network decoders for the surface code<span class="src">— reading now</span></li>
+        <li>Reinforcement learning for decoder and calibration policies<span class="src">— next up</span></li>
+      </ul>
+
+      <div class="lately" style="margin-top:26px"><b>Working on decoders?</b> I'd love to compare notes while this page takes shape — <a href="mailto:shyamprasadrao@gmail.com" style="color:var(--accent)">say hello</a>.</div>
+
+      <h2 class="sec">Already published nearby</h2>
+      <div class="next-links">
+        <a onclick="toast('would open Surface Code')">Surface Code<span class="st">published</span></a>
+        <a onclick="showView('note')">Randomized Benchmarking<span class="st">published</span></a>
+        <a onclick="toast('would open Twirling')">Twirling<span class="st">published</span></a>
+      </div>
+    </article>
+  </section>
+
+  </main>
+
+  <footer>
+    <span>&copy; 2026 Shyam Prasad Rao</span>
+    <span><a href="mailto:shyamprasadrao@gmail.com">Email</a> &middot; <a href="https://github.com/shyam-lab">GitHub</a></span>
+  </footer>
+</div>
+
+<div id="toast"></div>
+<script>
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='view-'+id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+</script>
+</body>
+</html>
