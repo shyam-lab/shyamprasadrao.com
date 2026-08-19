@@ -1,0 +1,157 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Atlas — Shyam Prasad Rao" description="A living map of quantum computing — every node a concept, every edge a relationship.">
+  <p class="lede">A living map of <strong>quantum computing</strong> — every node a concept, every edge a relationship. I publish nodes as I truly understand them; the dashed ones are where I'm headed next.</p>
+
+  <div class="lately"><b>Lately:</b> randomized benchmarking, decoder architectures, and what spec-sheet fidelity numbers actually mean.</div>
+
+  <div class="legend">
+    <span><span class="dotk done"></span>published</span>
+    <span><span class="dotk wip"></span>in progress</span>
+    <span><span class="dotk soon"></span>coming soon</span>
+  </div>
+
+  <div class="plate">
+    <svg viewBox="0 0 960 560" width="100%" role="img" aria-label="Quantum computing concept map">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+        </marker>
+      </defs>
+
+      <!-- ===== edges (drawn first) ===== -->
+      <path class="edge2" d="M 232 95 L 295 75" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="238" y="70" width="52" height="13"/><text class="elabel" x="264" y="80" text-anchor="middle">describes</text>
+      <path class="edge2" d="M 480 72 L 575 88" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="482" y="64" width="92" height="13"/><text class="elabel" x="528" y="74" text-anchor="middle">forms the basis</text>
+      <path class="edge2" d="M 188 133 L 390 248" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="263" y="182" width="52" height="13"/><text class="elabel" x="289" y="192" text-anchor="middle">grounds</text>
+      <path class="edge2" d="M 640 143 L 530 246" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="565" y="185" width="48" height="13"/><text class="elabel" x="589" y="195" text-anchor="middle">enables</text>
+      <path class="edge2 rel" d="M 700 143 L 830 205" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="712" y="163" width="94" height="13"/><text class="elabel" x="759" y="173" text-anchor="middle">implemented on</text>
+      <path class="edge2 rel" d="M 213 358 L 388 285" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="243" y="312" width="94" height="13"/><text class="elabel" x="290" y="322" text-anchor="middle">generalized by</text>
+      <path class="edge2 rel" d="M 130 135 L 125 330" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="103" y="225" width="50" height="13"/><text class="elabel" x="128" y="235" text-anchor="middle">extends</text>
+      <path class="edge2" d="M 455 290 L 395 398" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="398" y="336" width="42" height="13"/><text class="elabel" x="419" y="346" text-anchor="middle">runs</text>
+      <path class="edge2 rel" d="M 570 265 L 765 260" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="633" y="252" width="50" height="13"/><text class="elabel" x="658" y="262" text-anchor="middle">runs on</text>
+      <path class="edge2" d="M 468 450 L 550 450" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="482" y="442" width="40" height="13"/><text class="elabel" x="502" y="452" text-anchor="middle">solves</text>
+      <path class="edge2 lead" d="M 520 290 L 610 410" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="548" y="340" width="52" height="13"/><text class="elabel" x="574" y="350" text-anchor="middle">leads to</text>
+      <path class="edge2" d="M 855 315 L 855 375" marker-end="url(#arr)"/>
+      <rect class="elabel-bg" x="808" y="337" width="96" height="13"/><text class="elabel" x="856" y="347" text-anchor="middle">characterized by</text>
+
+      <!-- ===== boxes ===== -->
+      <g>
+        <rect class="b done" x="40" y="55" width="192" height="78" />
+        <text class="btitle" x="52" y="75">Mathematical Foundations</text>
+        <text class="bitem" x="52" y="93">&middot; Linear Algebra</text>
+        <text class="bitem" x="52" y="107">&middot; Complex Numbers</text>
+        <text class="bitem" x="52" y="121">&middot; Probability Theory</text>
+      </g>
+      <g>
+        <rect class="b wip" x="295" y="28" width="185" height="93"/>
+        <text class="btitle" x="307" y="48">Quantum Mechanics</text>
+        <text class="bitem" x="307" y="66">&middot; Superposition</text>
+        <text class="bitem" x="307" y="80">&middot; Entanglement</text>
+        <text class="bitem" x="307" y="94">&middot; Interference</text>
+        <text class="bitem" x="307" y="108">&middot; Measurement Postulate</text>
+      </g>
+      <g>
+        <rect class="b done" x="575" y="50" width="190" height="93"/>
+        <text class="btitle" x="587" y="70">Quantum Information</text>
+        <a href="/atlas/qubits-and-states"><text class="bitem link" x="587" y="88">&middot; Qubits &amp; States</text></a>
+        <text class="bitem" x="587" y="102">&middot; Density Matrices</text>
+        <text class="bitem" x="587" y="116">&middot; Channels, CPTP, Kraus</text>
+        <text class="bitem" x="587" y="130">&middot; Entanglement Theory</text>
+      </g>
+      <g class="soonbox">
+        <rect class="b soon" x="765" y="205" width="170" height="110"/>
+        <text class="btitle" x="777" y="225">Hardware &amp; Platforms</text>
+        <text class="bitem" x="777" y="243">&middot; Superconducting</text>
+        <text class="bitem" x="777" y="257">&middot; Trapped Ion</text>
+        <text class="bitem" x="777" y="271">&middot; Photonic</text>
+        <text class="bitem" x="777" y="285">&middot; Neutral Atom</text>
+        <text class="bitem" x="777" y="299">&middot; Topological</text>
+      </g>
+      <g>
+        <rect class="b done" x="40" y="330" width="173" height="93"/>
+        <text class="btitle" x="52" y="350">Classical Computing</text>
+        <text class="bitem" x="52" y="368">&middot; Bits &amp; Boolean Logic</text>
+        <text class="bitem" x="52" y="382">&middot; Complexity Theory</text>
+        <text class="bitem" x="52" y="396">&middot; Shannon Information</text>
+        <text class="bitem" x="52" y="410">&middot; Information Theory</text>
+      </g>
+      <g class="cbox">
+        <rect x="390" y="245" width="180" height="45"/>
+        <text x="480" y="272" text-anchor="middle">QUANTUM COMPUTING</text>
+      </g>
+      <g>
+        <rect class="b wip" x="290" y="398" width="178" height="93"/>
+        <text class="btitle" x="302" y="418">Algorithms</text>
+        <text class="bitem" x="302" y="436">&middot; Grover &mdash; search</text>
+        <text class="bitem" x="302" y="450">&middot; Shor &mdash; factoring</text>
+        <text class="bitem" x="302" y="464">&middot; QFT &amp; Phase Estimation</text>
+        <text class="bitem" x="302" y="478">&middot; VQE &middot; QAOA</text>
+      </g>
+      <g class="soonbox">
+        <rect class="b soon" x="550" y="408" width="168" height="93"/>
+        <text class="btitle" x="562" y="428">Applications</text>
+        <text class="bitem" x="562" y="446">&middot; Cryptography</text>
+        <text class="bitem" x="562" y="460">&middot; Optimization</text>
+        <text class="bitem" x="562" y="474">&middot; Simulation - Chemistry</text>
+        <text class="bitem" x="562" y="488">&middot; Machine Learning</text>
+      </g>
+      <a href="/atlas/noise-error-correction" class="clickbox">
+        <rect class="b done" x="765" y="375" width="175" height="93"/>
+        <text class="btitle" x="777" y="395">Noise &amp; Benchmarking</text>
+        <text class="bitem" x="777" y="413">&middot; T1, T2 Decoherence</text>
+        <text class="bitem" x="777" y="427">&middot; Randomized Benchmarking</text>
+        <text class="bitem" x="777" y="441">&middot; Error Correction</text>
+        <text class="bitem link" x="777" y="459">open this map &rarr;</text>
+      </a>
+
+      <!-- ===== edge legend ===== -->
+      <g class="maplegend">
+        <line class="edge2" x1="40" y1="510" x2="80" y2="510"/><text x="88" y="514">builds on / enables</text>
+        <line class="edge2 rel" x1="230" y1="510" x2="270" y2="510"/><text x="278" y="514">relies on / runs on</text>
+        <line class="edge2 lead" x1="415" y1="510" x2="455" y2="510"/><text x="463" y="514">leads to</text>
+      </g>
+    </svg>
+    <div class="plate-caption">fig. 1 &mdash; the atlas. boxes are territories, arrows are relationships. click Noise &amp; Benchmarking to go one level down.</div>
+  </div>
+
+  <h2 class="sec">Learning paths</h2>
+  <div class="item">
+    <div class="it-title">From zero to your first circuit</div>
+    <div class="it-meta"><span>7 stops</span><span class="tag">Math &rarr; QM &rarr; Qubits &rarr; Circuits</span></div>
+    <div class="it-desc">The dependency chain in order &mdash; answers "what should I learn next?" at every step.</div>
+  </div>
+  <a class="item" href="/atlas/noise-error-correction">
+    <div class="it-title">Why quantum computers fail &mdash; and how we fix them</div>
+    <div class="it-meta"><span>9 stops</span><span class="tag">Noise &rarr; Characterization &rarr; QEC</span></div>
+    <div class="it-desc">From decoherence to the surface code, via how we actually measure error.</div>
+  </a>
+  <div class="item">
+    <div class="it-title">From physics to products</div>
+    <div class="it-meta"><span>11 stops</span><span class="tag">Physics &rarr; Stack &rarr; Industry</span></div>
+    <div class="it-desc">Where most guides stop at algorithms, this one continues into roadmaps and strategy.</div>
+  </div>
+
+  <h2 class="sec">Recently tended</h2>
+  <div class="item">
+    <div class="it-title">Randomized Benchmarking</div>
+    <div class="it-meta"><span>Aug 12</span><span class="tag">Quantum</span></div>
+    <div class="it-desc">Rewrote the "why SPAM-free" section after re-reading the non-Markovian RB paper.</div>
+  </div>
+  <div class="item">
+    <div class="it-title">Decoder Architectures</div>
+    <div class="it-meta"><span>Aug 08</span><span class="tag">Quantum</span><span>&#128679; new frontier node</span></div>
+    <div class="it-desc">Collecting papers on matching and RL-based decoders for the surface code.</div>
+  </div>
+</Base>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qubits &amp; States — Quantum Atlas — shyamprasadrao.com</title>
+<style>
+  /* ===== Tokens copied verbatim from src/layouts/Base.astro ===== */
+  :root{
+    --paper:#F7F5F0; --ink:#1C1B18; --ink-soft:#4A4842; --faint:#8B887E;
+    --rule:#DAD6CB; --accent:#2F4B4B; --accent-soft:#6E8B87; --mark:#B4552E;
+    --maxw:720px;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* ===== prototype chrome (not part of the site) ===== */
+  .proto-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:8px 18px;font-size:12px;background:#1C1B18;color:#DAD6CB;font-family:var(--mono)}
+  .proto-bar .tag{opacity:.6}
+
+  /* ===== site header, as in Base.astro ===== */
+  header{padding:48px 0 0}
+  .name{font-size:26px;font-weight:600;letter-spacing:-.01em;text-decoration:none;color:var(--ink);cursor:pointer}
+  .tagline{font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;color:var(--faint);margin-top:4px}
+  nav{margin-top:26px;padding-bottom:14px;border-bottom:1px solid var(--rule);display:flex;gap:22px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:13px;letter-spacing:.03em}
+  nav a{text-decoration:none;color:var(--ink-soft);padding-bottom:2px;border-bottom:1.5px solid transparent;cursor:pointer}
+  nav a:hover{color:var(--ink);border-color:var(--accent)}
+  nav a.active{color:var(--accent);border-color:var(--accent)}
+
+  main{padding:40px 0 80px;min-height:50vh}
+
+  h2.sec{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    font-weight:600;margin:44px 0 16px;display:flex;align-items:center;gap:10px}
+  h2.sec::before{content:"";width:14px;height:1px;background:var(--mark)}
+  .crumbs{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.02em;margin-bottom:18px}
+  .crumbs a{color:var(--accent-soft);text-decoration:none;cursor:pointer}
+  .crumbs a:hover{color:var(--accent)}
+  .crumbs .sep{margin:0 6px;opacity:.6}
+
+  .lately{font-family:var(--mono);font-size:13px;color:var(--ink-soft);border-left:2px solid var(--mark);
+    padding:2px 0 2px 14px;margin:22px 0}
+  .lately b{color:var(--ink)}
+
+  /* ===== evergreen note = the site's .post styles ===== */
+  .post h1{font-size:30px;letter-spacing:-.02em;margin:6px 0 4px;line-height:1.2}
+  .post .it-meta{font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.02em;margin-top:5px;
+    display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+  .tag{color:var(--accent-soft)}
+  .post p{font-size:17px;color:var(--ink-soft);margin:0 0 18px;max-width:62ch}
+  .post h2{font-size:21px;margin:32px 0 12px;color:var(--ink);letter-spacing:-.01em}
+  .post h2 .qnum{font-family:var(--mono);font-size:11px;color:var(--mark);letter-spacing:.1em;vertical-align:3px;margin-right:8px}
+  .post h3{font-size:17px;margin:24px 0 8px;color:var(--ink)}
+  .post a{color:var(--accent);text-underline-offset:2px;cursor:pointer}
+  .post strong{color:var(--ink)}
+  .post em{color:var(--ink-soft)}
+  .post ul,.post ol{margin:0 0 18px 22px;color:var(--ink-soft);font-size:17px}
+  .post li{margin-bottom:6px}
+  .post table{border-collapse:collapse;margin:18px 0;font-size:15px;width:100%}
+  .post th,.post td{border:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink-soft)}
+  .post th{background:#EDEAE1;color:var(--ink);font-weight:600}
+  .post blockquote{border-left:2px solid var(--mark);padding-left:14px;color:var(--faint);font-style:italic;margin:0 0 18px}
+  .formula{font-family:var(--mono);background:#EDEAE1;border:1px solid var(--rule);padding:12px 16px;
+    margin:0 0 18px;font-size:14px;overflow-x:auto;color:var(--ink);line-height:1.9}
+  .formula .dim{color:var(--faint)}
+  .pill{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em}
+  .pill.pub{color:var(--accent)}
+
+  .connected{border-top:1px solid var(--rule);margin-top:36px;padding-top:6px}
+  .next-links{display:flex;flex-direction:column}
+  .next-links a{font-size:15.5px;color:var(--accent);text-decoration:none;cursor:pointer;padding:8px 0;border-bottom:1px solid var(--rule)}
+  .next-links a:hover{text-underline-offset:2px;text-decoration:underline}
+  .next-links .st{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:8px}
+
+  .reading{margin:0 0 18px}
+  .reading li{list-style:none;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15.5px;color:var(--ink-soft);margin:0}
+  .reading .src{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:8px}
+
+  /* ===== plates (figures) ===== */
+  .plate{margin:30px 0 8px}
+  @media(min-width:1000px){.plate.wide{margin-left:-110px;margin-right:-110px}}
+  .plate-caption{font-family:var(--mono);font-size:11.5px;color:var(--faint);letter-spacing:.02em;text-align:center;margin-top:6px}
+
+  /* bloch figure */
+  .bloch{display:block;margin:0 auto;max-width:400px}
+  .bloch .ax{stroke:var(--rule);stroke-width:1.2}
+  .bloch .sphere{fill:none;stroke:#A9A395;stroke-width:1.2}
+  .bloch .equator{fill:none;stroke:#A9A395;stroke-width:1;stroke-dasharray:4 3}
+  .bloch .statev{stroke:var(--accent);stroke-width:2}
+  .bloch .proj{stroke:var(--accent-soft);stroke-width:1;stroke-dasharray:3 3}
+  .bloch .ang{fill:none;stroke:var(--mark);stroke-width:1.2}
+  .bloch .angw{fill:var(--mark);fill-opacity:.13;stroke:var(--mark);stroke-width:1.1;stroke-linejoin:round}
+  .bloch text{font-family:var(--mono);font-size:12px;fill:var(--ink)}
+  .bloch text.dim{fill:var(--faint);font-size:10.5px}
+  .bloch text.ang-l{fill:var(--mark);font-style:italic;font-size:12px}
+
+  /* mini concept-map, option-2 style */
+  .b{fill:#FCFBF5;stroke-width:1.2}
+  .b.done{stroke:var(--accent)}
+  .b.wip{stroke:var(--mark)}
+  .b.soon{stroke:var(--faint);stroke-dasharray:4 3}
+  .btitle{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:13.5px;font-weight:700;fill:var(--ink)}
+  g.soonbox .btitle{fill:var(--faint)}
+  .bitem{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:11.5px;fill:var(--ink-soft)}
+  g.soonbox .bitem{fill:var(--faint)}
+  .bitem.link{fill:var(--accent);cursor:pointer;font-weight:600}
+  .bitem.link:hover{text-decoration:underline}
+  .cbox rect{fill:var(--ink);stroke:var(--ink)}
+  .cbox text{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.12em;fill:var(--paper)}
+  .edge2{stroke:#A9A395;stroke-width:1.1;fill:none}
+  .edge2.rel{stroke-dasharray:5 4}
+  .edge2.lead{stroke-dasharray:1.5 3}
+  .elabel{font-family:var(--mono);font-size:9.5px;font-style:italic;fill:var(--faint)}
+  .elabel-bg{fill:var(--paper);opacity:.85}
+  .maplegend text{font-family:var(--mono);font-size:10px;fill:var(--faint)}
+  .clickbox{cursor:pointer}
+  .clickbox:hover rect.b{fill:#F3F0E7}
+
+  footer{border-top:1px solid var(--rule);padding:26px 0 60px;font-family:var(--mono);font-size:12px;color:var(--faint);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--accent-soft);text-decoration:none}
+  footer a:hover{color:var(--accent)}
+
+  #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--paper);
+    padding:9px 18px;font-family:var(--mono);font-size:12.5px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:99}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:520px){
+    header{padding-top:32px}
+    .post h1{font-size:25px}
+  }
+</style>
+</head>
+<body>
+
+<div class="proto-bar">
+  <span class="tag">PROTOTYPE · evergreen note — Qubits &amp; States · links to unbuilt nodes show a toast</span>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="masthead"><a class="name">Shyam Prasad Rao</a></div>
+    <div class="tagline">Hard problems — technical, commercial, and otherwise.</div>
+    <nav>
+      <a>Home</a>
+      <a>Writing</a>
+      <a>Projects</a>
+      <a class="active">Atlas</a>
+      <a>About</a>
+      <a>GitHub&#8599;</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="crumbs"><a onclick="toast('would open the Atlas')">atlas</a><span class="sep">/</span><a onclick="toast('would open the Quantum Information map')">quantum information</a><span class="sep">/</span>qubits &amp; states</div>
+
+    <article class="post">
+      <h1>Qubits &amp; States</h1>
+      <div class="it-meta"><span class="pill pub">● published</span><span>last tended Aug 16, 2026</span><span class="tag">Quantum</span><span>8 min</span></div>
+
+      <h2><span class="qnum">Q1</span>What is it?</h2>
+      <p>A qubit is a two-level quantum system — the smallest thing quantum mechanics lets you store information in. A classical bit is a switch: at any moment it reads 0 or 1, and that value <em>is</em> the state. A qubit's state is not a value. It's a vector:</p>
+      <div class="formula">|ψ⟩ = α|0⟩ + β|1⟩ <span class="dim">&nbsp;&nbsp;with&nbsp;&nbsp;</span> |α|² + |β|² = 1</div>
+      <p>The complex numbers α and β are <strong>probability amplitudes</strong>. Measure the qubit in the computational basis and you get 0 with probability |α|² and 1 with probability |β|² — and the state jumps to match the answer. That asymmetry is the whole subject in one sentence: <strong>the state is described by amplitudes; measurement produces probabilities.</strong> Everything strange and useful about quantum computing lives in the gap between those two.</p>
+      <p>For a single qubit there is a picture worth keeping. Any pure state can be written with just two real angles,</p>
+      <div class="formula">|ψ⟩ = cos(θ/2)|0⟩ + e<sup>iφ</sup> sin(θ/2)|1⟩</div>
+      <p>so the states live on the surface of a sphere — the <strong>Bloch sphere</strong> — with |0⟩ at the north pole, |1⟩ at the south, equal superpositions on the equator, and the relative phase φ sweeping around it. Gates become rotations of this sphere; choosing a measurement basis means choosing an axis.</p>
+
+      <div class="plate">
+        <svg class="bloch" viewBox="0 0 400 360" width="100%" role="img" aria-label="Bloch sphere with a state vector at angles theta and phi">
+          <!-- sphere -->
+          <circle class="sphere" cx="200" cy="180" r="130"/>
+          <ellipse class="equator" cx="200" cy="180" rx="130" ry="42"/>
+          <!-- axes -->
+          <line class="ax" x1="200" y1="38" x2="200" y2="322"/>
+          <line class="ax" x1="58" y1="180" x2="342" y2="180"/>
+          <line class="ax" x1="118" y1="238" x2="282" y2="122"/>
+          <!-- state vector: theta ~ 50deg from z, on front of sphere -->
+          <line class="proj" x1="200" y1="180" x2="288" y2="216"/>
+          <line class="proj" x1="288" y1="98" x2="288" y2="216"/>
+          <line class="statev" x1="200" y1="180" x2="288" y2="98"/>
+          <circle cx="288" cy="98" r="3.5" fill="var(--accent)"/>
+          <!-- theta: shaded wedge at the origin, from +z axis to the state vector -->
+          <path class="angw" d="M 200 180 L 200 136 A 44 44 0 0 1 232 150 Z"/>
+          <text class="ang-l" x="221" y="130" text-anchor="middle">θ</text>
+          <!-- phi: shaded wedge at the origin, in the equator plane, from the x axis to the projection -->
+          <path class="angw" d="M 200 180 L 165.6 204.4 Q 201 217 237 195 Z"/>
+          <text class="ang-l" x="197" y="239" text-anchor="middle">φ</text>
+          <text class="dim" x="102" y="254">x̂</text>
+          <!-- labels -->
+          <text x="192" y="26" text-anchor="middle">|0⟩</text>
+          <text class="dim" x="228" y="26">north pole</text>
+          <text x="192" y="342" text-anchor="middle">|1⟩</text>
+          <text class="dim" x="228" y="342">south pole</text>
+          <text x="298" y="92">|ψ⟩</text>
+        </svg>
+        <div class="plate-caption">fig. 1 — one qubit, two angles: θ sets the |0⟩/|1⟩ balance, φ the relative phase.</div>
+      </div>
+
+      <p style="margin-top:18px">The caveat that took me a while to appreciate: the sphere is a complete picture of <em>one</em> qubit in a <em>pure</em> state, and nothing more. Mixed states fall into the sphere's interior and need <a onclick="toast('would open Density Matrices')">density matrices</a>; several qubits together need a state space the sphere can't draw at all. The picture is a ladder — climb it, then know when to let go.</p>
+
+      <h2><span class="qnum">Q2</span>Why does it exist?</h2>
+      <p>Because probabilities aren't enough, and here is the shortest experiment that proves it. Take a qubit in |0⟩ and apply a Hadamard gate:</p>
+      <div class="formula">H = (1/√2) [ 1&nbsp;&nbsp;1 ; 1&nbsp;−1 ] <span class="dim">&nbsp;&nbsp;so&nbsp;&nbsp;</span> H|0⟩ = (|0⟩ + |1⟩)/√2</div>
+      <p>Measure now and you get a fair coin — 0 half the time, 1 half the time. So suppose the qubit were merely a random bit. Applying H again would be randomizing a coin flip: still a coin flip. But that's not what happens. Apply H a second time, <em>without measuring in between</em>, and:</p>
+      <div class="formula">H( (|0⟩+|1⟩)/√2 ) = |0⟩ <span class="dim">&nbsp;&nbsp;— every single time</span></div>
+      <p>The amplitudes headed for |1⟩ arrive with opposite signs and cancel; the ones headed for |0⟩ reinforce. No amount of probability bookkeeping predicts that — you need amplitudes that carry <strong>phase</strong> and can <strong>interfere</strong>. That is why the qubit is defined the way it is, and interference is the resource every quantum algorithm is built to spend. The mental model I'm carrying forward into algorithms:</p>
+      <div class="formula">qubit → amplitudes → phase → interference → measurement</div>
+      <blockquote>"A qubit is 0 and 1 at the same time" — useful as a first rung, but it's the coin-flip model, and the coin-flip model just failed the two-Hadamard test. Better: a qubit holds a coherent superposition, described by complex amplitudes whose phases matter.</blockquote>
+
+      <h2><span class="qnum">Q3</span>How does it connect?</h2>
+      <p>Upstream, the qubit is <a onclick="toast('would open the Mathematical Foundations map')">linear algebra</a> wearing physics: states are unit vectors, gates are unitary matrices, and amplitudes live in the complex plane, with probability theory waiting at the measurement. Sideways, it's the object the neighboring nodes act on — <a onclick="toast('would open Superposition')">superposition</a> is the structure of the state itself, <a onclick="toast('would open Measurement')">measurement</a> converts it into classical information, and <a onclick="toast('would open Quantum Gates')">gates</a> rotate it. Downstream is where the field opens up: <a onclick="toast('would open Tensor Products')">tensor products</a> glue qubits together, n of them spanning 2<sup>n</sup> basis states,</p>
+      <div class="formula">|ψ⟩ = Σ<sub>x</sub> α<sub>x</sub>|x⟩ , <span class="dim">&nbsp;x = 0 … 2ⁿ−1 ,&nbsp;</span> Σ|α<sub>x</sub>|² = 1</div>
+      <p>and joint states appear that cannot be factored into a state per qubit — <a onclick="toast('would open Entanglement')">entanglement</a>, which is where the sphere picture finally breaks and the real machinery begins.</p>
+      <p>One caution belongs on this node and not later: having 2<sup>n</sup> amplitudes does <strong>not</strong> mean a quantum computer runs 2<sup>n</sup> classical computations in parallel. You measure once and get one outcome. Advantage, when it exists, comes from choreographing interference so wrong answers cancel — which is the Q2 story, scaled up.</p>
+
+      <div class="plate wide">
+        <svg viewBox="0 0 960 335" width="100%" role="img" aria-label="Where Qubits and States sits in the map">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+            </marker>
+          </defs>
+
+          <!-- edges -->
+          <path class="edge2" d="M 205 110 L 388 118" marker-end="url(#arr)"/>
+          <rect class="elabel-bg" x="266" y="100" width="52" height="13"/><text class="elabel" x="292" y="110" text-anchor="middle">grounds</text>
+
+          <path class="edge2" d="M 590 100 L 700 62" marker-end="url(#arr)"/>
+          <rect class="elabel-bg" x="608" y="66" width="58" height="13"/><text class="elabel" x="637" y="76" text-anchor="middle">acted on by</text>
+
+          <path class="edge2" d="M 590 140 L 700 172" marker-end="url(#arr)"/>
+          <rect class="elabel-bg" x="608" y="146" width="64" height="13"/><text class="elabel" x="640" y="156" text-anchor="middle">compose via</text>
+
+          <path class="edge2 rel" d="M 480 135 L 480 228" marker-end="url(#arr)"/>
+          <rect class="elabel-bg" x="428" y="188" width="104" height="13"/><text class="elabel" x="480" y="198" text-anchor="middle">realized in hardware</text>
+
+          <path class="edge2 lead" d="M 855 100 C 890 120, 890 140, 858 158" marker-end="url(#arr)"/>
+          <rect class="elabel-bg" x="878" y="122" width="56" height="13"/><text class="elabel" x="906" y="132" text-anchor="middle">leads to</text>
+
+          <!-- boxes -->
+          <g onclick="toast('would open the Mathematical Foundations map')" class="clickbox">
+            <rect class="b done" x="30" y="65" width="175" height="93"/>
+            <text class="btitle" x="42" y="85">Mathematical Foundations</text>
+            <text class="bitem" x="42" y="103">· Linear Algebra</text>
+            <text class="bitem" x="42" y="117">· Complex Numbers</text>
+            <text class="bitem" x="42" y="131">· Probability Theory</text>
+          </g>
+
+          <g class="cbox">
+            <rect x="388" y="90" width="185" height="45"/>
+            <text x="480" y="117" text-anchor="middle">QUBITS &amp; STATES</text>
+          </g>
+
+          <g onclick="toast('would open Quantum Gates & Circuits')" class="clickbox">
+            <rect class="b wip" x="700" y="18" width="170" height="82"/>
+            <text class="btitle" x="712" y="38">Gates &amp; Circuits</text>
+            <text class="bitem" x="712" y="56">· Single-qubit rotations</text>
+            <text class="bitem" x="712" y="70">· H · X · Z · CNOT</text>
+            <text class="bitem" x="712" y="84">· Circuits → Algorithms</text>
+          </g>
+
+          <g onclick="toast('would open Tensor Products & Entanglement')" class="clickbox">
+            <rect class="b wip" x="700" y="158" width="170" height="82"/>
+            <text class="btitle" x="712" y="178">Many Qubits</text>
+            <text class="bitem" x="712" y="196">· Tensor Products</text>
+            <text class="bitem" x="712" y="210">· 2ⁿ amplitudes</text>
+            <text class="bitem" x="712" y="224">· Entanglement</text>
+          </g>
+
+          <g class="soonbox" onclick="toast('coming soon — the hardware landscape')">
+            <rect class="b soon" x="393" y="228" width="175" height="62"/>
+            <text class="btitle" x="405" y="248">Physical Qubits</text>
+            <text class="bitem" x="405" y="266">· Superconducting · Ions</text>
+            <text class="bitem" x="405" y="280">· Photons · Atoms · Spins</text>
+          </g>
+
+          <!-- legend -->
+          <g class="maplegend">
+            <line class="edge2" x1="30" y1="318" x2="70" y2="318"/><text x="78" y="322">builds on / enables</text>
+            <line class="edge2 rel" x1="220" y1="318" x2="260" y2="318"/><text x="268" y="322">relies on / runs on</text>
+            <line class="edge2 lead" x1="405" y1="318" x2="445" y2="318"/><text x="453" y="322">leads to</text>
+          </g>
+        </svg>
+        <div class="plate-caption">fig. 2 — this node in the graph: math flows in, gates and entanglement flow out, hardware carries it.</div>
+      </div>
+
+      <h2 style="margin-top:40px"><span class="qnum">Q4</span>Where is it used?</h2>
+      <p>Everywhere — it's the atom of the field, so the honest answer is "see every other node." The sharper question is where the <em>abstraction</em> earns its keep. "Two-level quantum system" is a spec, not a device: superconducting circuits, trapped ions, neutral atoms, photons, and semiconductor spins all implement it, and the mathematics upstairs doesn't care which. That indifference is what lets algorithm designers and hardware physicists work the same problem from opposite ends.</p>
+      <p>The gap between the mathematical qubit and its physical implementation is also where all the trouble lives: decoherence, control error, measurement error, and eventually the whole <a onclick="toast('would open the Noise & Error Correction map')">Noise &amp; Error Correction</a> map — that entire territory is the story of defending this node's clean abstraction against physics. It's why a vendor's qubit <em>count</em> is the least interesting number on the spec sheet: the mathematical qubit is what they're counting, the physical qubit is what they have, and the distance between the two is what they're selling.</p>
+      <p>To make it concrete: build a one-qubit circuit in Qiskit, apply X, Y, Z, and H, and watch the counts. Then run the two-Hadamard experiment from Q2 yourself — it's three lines, and it's the cheapest genuine quantum surprise available.</p>
+
+      <h2 class="sec">My open questions</h2>
+      <ul class="reading">
+        <li>What is the most useful mental model for phase — geometry, clocks, or something better?<span class="src">— chasing</span></li>
+        <li>Why exactly does the Bloch sphere completely characterize a single-qubit pure state?<span class="src">— can compute, can't yet feel</span></li>
+        <li>What changes, conceptually, when a state vector becomes a density matrix?<span class="src">— next node</span></li>
+        <li>How should entanglement change the way I think about an <em>individual</em> qubit?<span class="src">— open</span></li>
+        <li>Which properties of the ideal qubit survive contact with a noisy physical one?<span class="src">— bridges to the noise map</span></li>
+      </ul>
+
+      <h2 class="sec">Explore further</h2>
+      <ul class="reading">
+        <li><a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener">3Blue1Brown, <em>Essence of Linear Algebra</em></a> — visual grammar for vectors, transformations, and complex numbers<span class="src">— intuition</span></li>
+        <li>Nielsen &amp; Chuang, <em>Quantum Computation and Quantum Information</em>, ch. 1–2<span class="src">— rigor</span></li>
+        <li><a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noopener">Qiskit</a> — one qubit, four gates, and the two-Hadamard experiment<span class="src">— hands on</span></li>
+        <li><a href="https://www.blochcubes.org/" target="_blank" rel="noopener">Bloch Cubes</a> — hands-on Bloch-sphere learning: videos, a buildable cube, even Bloch Cube Chess<span class="src">— play</span></li>
+      </ul>
+
+      <div class="connected">
+        <h2 class="sec" style="margin-top:20px">Continue in the graph</h2>
+        <div class="next-links">
+          <a onclick="toast('would open Superposition')">Superposition<span class="st">drafting</span></a>
+          <a onclick="toast('would open Measurement')">Measurement<span class="st">drafting</span></a>
+          <a onclick="toast('would open Quantum Gates')">Quantum Gates<span class="st">drafting</span></a>
+          <a onclick="toast('would open Density Matrices')">Density Matrices<span class="st">published</span></a>
+          <a onclick="toast('would open Tensor Products & Entanglement')">Tensor Products &amp; Entanglement<span class="st">🚧 coming soon</span></a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <span>&copy; 2026 Shyam Prasad Rao</span>
+    <span><a href="mailto:shyamprasadrao@gmail.com">Email</a> &middot; <a href="https://github.com/shyam-lab">GitHub</a></span>
+  </footer>
+</div>
+
+<div id="toast"></div>
+<script>
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+</script>
+</body>
+</html>

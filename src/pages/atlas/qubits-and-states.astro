@@ -1,0 +1,171 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Qubits &amp; States — Shyam Prasad Rao" description="What a qubit actually is, why amplitudes and interference are unavoidable, and how this node connects to gates, entanglement, and hardware.">
+  <div class="crumbs"><a href="/atlas">atlas</a><span class="sep">/</span>quantum information<span class="sep">/</span>qubits &amp; states</div>
+
+  <article class="post">
+    <h1>Qubits &amp; States</h1>
+    <div class="it-meta"><span class="pill pub">&#9679; published</span><span>last tended Aug 16, 2026</span><span class="tag">Quantum</span><span>8 min</span></div>
+
+    <h2><span class="qnum">Q1</span>What is it?</h2>
+    <p>A qubit is a two-level quantum system — the smallest thing quantum mechanics lets you store information in. A classical bit is a switch: at any moment it reads 0 or 1, and that value <em>is</em> the state. A qubit's state is not a value. It's a vector:</p>
+    <div class="formula">|ψ⟩ = α|0⟩ + β|1⟩ <span class="dim">&nbsp;&nbsp;with&nbsp;&nbsp;</span> |α|² + |β|² = 1</div>
+    <p>The complex numbers α and β are <strong>probability amplitudes</strong>. Measure the qubit in the computational basis and you get 0 with probability |α|² and 1 with probability |β|² — and the state jumps to match the answer. That asymmetry is the whole subject in one sentence: <strong>the state is described by amplitudes; measurement produces probabilities.</strong> Everything strange and useful about quantum computing lives in the gap between those two.</p>
+    <p>For a single qubit there is a picture worth keeping. Any pure state can be written with just two real angles,</p>
+    <div class="formula">|ψ⟩ = cos(θ/2)|0⟩ + e<sup>iφ</sup> sin(θ/2)|1⟩</div>
+    <p>so the states live on the surface of a sphere — the <strong>Bloch sphere</strong> — with |0⟩ at the north pole, |1⟩ at the south, equal superpositions on the equator, and the relative phase φ sweeping around it. Gates become rotations of this sphere; choosing a measurement basis means choosing an axis.</p>
+
+    <div class="plate">
+      <svg class="bloch" viewBox="0 0 400 360" width="100%" role="img" aria-label="Bloch sphere with a state vector at angles theta and phi">
+        <!-- sphere -->
+        <circle class="sphere" cx="200" cy="180" r="130"/>
+        <ellipse class="equator" cx="200" cy="180" rx="130" ry="42"/>
+        <!-- axes -->
+        <line class="ax" x1="200" y1="38" x2="200" y2="322"/>
+        <line class="ax" x1="58" y1="180" x2="342" y2="180"/>
+        <line class="ax" x1="118" y1="238" x2="282" y2="122"/>
+        <!-- state vector: theta ~ 50deg from z, on front of sphere -->
+        <line class="proj" x1="200" y1="180" x2="288" y2="216"/>
+        <line class="proj" x1="288" y1="98" x2="288" y2="216"/>
+        <line class="statev" x1="200" y1="180" x2="288" y2="98"/>
+        <circle cx="288" cy="98" r="3.5" fill="var(--accent)"/>
+        <!-- theta: shaded wedge at the origin, from +z axis to the state vector -->
+        <path class="angw" d="M 200 180 L 200 136 A 44 44 0 0 1 232 150 Z"/>
+        <text class="ang-l" x="221" y="130" text-anchor="middle">θ</text>
+        <!-- phi: shaded wedge at the origin, in the equator plane, from the x axis to the projection -->
+        <path class="angw" d="M 200 180 L 165.6 204.4 Q 201 217 237 195 Z"/>
+        <text class="ang-l" x="197" y="239" text-anchor="middle">φ</text>
+        <text class="dim" x="102" y="254">x̂</text>
+        <!-- labels -->
+        <text x="192" y="26" text-anchor="middle">|0⟩</text>
+        <text class="dim" x="228" y="26">north pole</text>
+        <text x="192" y="342" text-anchor="middle">|1⟩</text>
+        <text class="dim" x="228" y="342">south pole</text>
+        <text x="298" y="92">|ψ⟩</text>
+      </svg>
+      <div class="plate-caption">fig. 1 &mdash; one qubit, two angles: θ sets the |0⟩/|1⟩ balance, φ the relative phase.</div>
+    </div>
+
+    <p style="margin-top:18px">The caveat that took me a while to appreciate: the sphere is a complete picture of <em>one</em> qubit in a <em>pure</em> state, and nothing more. Mixed states fall into the sphere's interior and need density matrices; several qubits together need a state space the sphere can't draw at all. The picture is a ladder — climb it, then know when to let go.</p>
+
+    <h2><span class="qnum">Q2</span>Why does it exist?</h2>
+    <p>Because probabilities aren't enough, and here is the shortest experiment that proves it. Take a qubit in |0⟩ and apply a Hadamard gate:</p>
+    <div class="formula">H = (1/√2) [ 1&nbsp;&nbsp;1 ; 1&nbsp;−1 ] <span class="dim">&nbsp;&nbsp;so&nbsp;&nbsp;</span> H|0⟩ = (|0⟩ + |1⟩)/√2</div>
+    <p>Measure now and you get a fair coin — 0 half the time, 1 half the time. So suppose the qubit were merely a random bit. Applying H again would be randomizing a coin flip: still a coin flip. But that's not what happens. Apply H a second time, <em>without measuring in between</em>, and:</p>
+    <div class="formula">H( (|0⟩+|1⟩)/√2 ) = |0⟩ <span class="dim">&nbsp;&nbsp;— every single time</span></div>
+    <p>The amplitudes headed for |1⟩ arrive with opposite signs and cancel; the ones headed for |0⟩ reinforce. No amount of probability bookkeeping predicts that — you need amplitudes that carry <strong>phase</strong> and can <strong>interfere</strong>. That is why the qubit is defined the way it is, and interference is the resource every quantum algorithm is built to spend. The mental model I'm carrying forward into algorithms:</p>
+    <div class="formula">qubit → amplitudes → phase → interference → measurement</div>
+    <blockquote>"A qubit is 0 and 1 at the same time" — useful as a first rung, but it's the coin-flip model, and the coin-flip model just failed the two-Hadamard test. Better: a qubit holds a coherent superposition, described by complex amplitudes whose phases matter.</blockquote>
+
+    <h2><span class="qnum">Q3</span>How does it connect?</h2>
+    <p>Upstream, the qubit is linear algebra wearing physics: states are unit vectors, gates are unitary matrices, and amplitudes live in the complex plane, with probability theory waiting at the measurement. Sideways, it's the object the neighboring nodes act on — superposition is the structure of the state itself, measurement converts it into classical information, and gates rotate it. Downstream is where the field opens up: tensor products glue qubits together, n of them spanning 2<sup>n</sup> basis states,</p>
+    <div class="formula">|ψ⟩ = Σ<sub>x</sub> α<sub>x</sub>|x⟩ , <span class="dim">&nbsp;x = 0 … 2ⁿ−1 ,&nbsp;</span> Σ|α<sub>x</sub>|² = 1</div>
+    <p>and joint states appear that cannot be factored into a state per qubit — entanglement, which is where the sphere picture finally breaks and the real machinery begins.</p>
+    <p>One caution belongs on this node and not later: having 2<sup>n</sup> amplitudes does <strong>not</strong> mean a quantum computer runs 2<sup>n</sup> classical computations in parallel. You measure once and get one outcome. Advantage, when it exists, comes from choreographing interference so wrong answers cancel — which is the Q2 story, scaled up.</p>
+
+    <div class="plate">
+      <svg viewBox="0 0 960 335" width="100%" role="img" aria-label="Where Qubits and States sits in the map">
+        <defs>
+          <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- edges -->
+        <path class="edge2" d="M 230 110 L 388 118" marker-end="url(#arr3)"/>
+        <rect class="elabel-bg" x="279" y="100" width="52" height="13"/><text class="elabel" x="305" y="110" text-anchor="middle">grounds</text>
+
+        <path class="edge2" d="M 590 100 L 700 62" marker-end="url(#arr3)"/>
+        <rect class="elabel-bg" x="608" y="66" width="58" height="13"/><text class="elabel" x="637" y="76" text-anchor="middle">acted on by</text>
+
+        <path class="edge2" d="M 590 140 L 700 172" marker-end="url(#arr3)"/>
+        <rect class="elabel-bg" x="608" y="146" width="64" height="13"/><text class="elabel" x="640" y="156" text-anchor="middle">compose via</text>
+
+        <path class="edge2 rel" d="M 480 135 L 480 228" marker-end="url(#arr3)"/>
+        <rect class="elabel-bg" x="428" y="188" width="104" height="13"/><text class="elabel" x="480" y="198" text-anchor="middle">realized in hardware</text>
+
+        <path class="edge2 lead" d="M 855 100 C 890 120, 890 140, 858 158" marker-end="url(#arr3)"/>
+        <rect class="elabel-bg" x="878" y="122" width="56" height="13"/><text class="elabel" x="906" y="132" text-anchor="middle">leads to</text>
+
+        <!-- boxes -->
+        <g>
+          <rect class="b done" x="30" y="65" width="200" height="93"/>
+          <text class="btitle" x="42" y="85">Mathematical Foundations</text>
+          <text class="bitem" x="42" y="103">&middot; Linear Algebra</text>
+          <text class="bitem" x="42" y="117">&middot; Complex Numbers</text>
+          <text class="bitem" x="42" y="131">&middot; Probability Theory</text>
+        </g>
+
+        <g class="cbox">
+          <rect x="388" y="90" width="185" height="45"/>
+          <text x="480" y="117" text-anchor="middle">QUBITS &amp; STATES</text>
+        </g>
+
+        <g>
+          <rect class="b wip" x="700" y="18" width="170" height="82"/>
+          <text class="btitle" x="712" y="38">Gates &amp; Circuits</text>
+          <text class="bitem" x="712" y="56">&middot; Single-qubit rotations</text>
+          <text class="bitem" x="712" y="70">&middot; H &middot; X &middot; Z &middot; CNOT</text>
+          <text class="bitem" x="712" y="84">&middot; Circuits &rarr; Algorithms</text>
+        </g>
+
+        <g>
+          <rect class="b wip" x="700" y="158" width="170" height="82"/>
+          <text class="btitle" x="712" y="178">Many Qubits</text>
+          <text class="bitem" x="712" y="196">&middot; Tensor Products</text>
+          <text class="bitem" x="712" y="210">&middot; 2ⁿ amplitudes</text>
+          <text class="bitem" x="712" y="224">&middot; Entanglement</text>
+        </g>
+
+        <g class="soonbox">
+          <rect class="b soon" x="393" y="228" width="175" height="62"/>
+          <text class="btitle" x="405" y="248">Physical Qubits</text>
+          <text class="bitem" x="405" y="266">&middot; Superconducting &middot; Ions</text>
+          <text class="bitem" x="405" y="280">&middot; Photons &middot; Atoms &middot; Spins</text>
+        </g>
+
+        <!-- legend -->
+        <g class="maplegend">
+          <line class="edge2" x1="30" y1="318" x2="70" y2="318"/><text x="78" y="322">builds on / enables</text>
+          <line class="edge2 rel" x1="220" y1="318" x2="260" y2="318"/><text x="268" y="322">relies on / runs on</text>
+          <line class="edge2 lead" x1="405" y1="318" x2="445" y2="318"/><text x="453" y="322">leads to</text>
+        </g>
+      </svg>
+      <div class="plate-caption">fig. 2 &mdash; this node in the graph: math flows in, gates and entanglement flow out, hardware carries it.</div>
+    </div>
+
+    <h2 style="margin-top:40px"><span class="qnum">Q4</span>Where is it used?</h2>
+    <p>Everywhere — it's the atom of the field, so the honest answer is "see every other node." The sharper question is where the <em>abstraction</em> earns its keep. "Two-level quantum system" is a spec, not a device: superconducting circuits, trapped ions, neutral atoms, photons, and semiconductor spins all implement it, and the mathematics upstairs doesn't care which. That indifference is what lets algorithm designers and hardware physicists work the same problem from opposite ends.</p>
+    <p>The gap between the mathematical qubit and its physical implementation is also where all the trouble lives: decoherence, control error, measurement error, and eventually the whole <a href="/atlas/noise-error-correction">Noise &amp; Error Correction</a> map — that entire territory is the story of defending this node's clean abstraction against physics. It's why a vendor's qubit <em>count</em> is the least interesting number on the spec sheet: the mathematical qubit is what they're counting, the physical qubit is what they have, and the distance between the two is what they're selling.</p>
+    <p>To make it concrete: build a one-qubit circuit in Qiskit, apply X, Y, Z, and H, and watch the counts. Then run the two-Hadamard experiment from Q2 yourself — it's three lines, and it's the cheapest genuine quantum surprise available.</p>
+
+    <h2 class="sec">My open questions</h2>
+    <ul class="reading">
+      <li>What is the most useful mental model for phase — geometry, clocks, or something better?<span class="src">— chasing</span></li>
+      <li>Why exactly does the Bloch sphere completely characterize a single-qubit pure state?<span class="src">— can compute, can't yet feel</span></li>
+      <li>What changes, conceptually, when a state vector becomes a density matrix?<span class="src">— next node</span></li>
+      <li>How should entanglement change the way I think about an <em>individual</em> qubit?<span class="src">— open</span></li>
+      <li>Which properties of the ideal qubit survive contact with a noisy physical one?<span class="src">— bridges to the noise map</span></li>
+    </ul>
+
+    <h2 class="sec">Explore further</h2>
+    <ul class="reading">
+      <li><a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener">3Blue1Brown, <em>Essence of Linear Algebra</em></a> — visual grammar for vectors, transformations, and complex numbers<span class="src">— intuition</span></li>
+      <li>Nielsen &amp; Chuang, <em>Quantum Computation and Quantum Information</em>, ch. 1&ndash;2<span class="src">— rigor</span></li>
+      <li><a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noopener">Qiskit</a> — one qubit, four gates, and the two-Hadamard experiment<span class="src">— hands on</span></li>
+      <li><a href="https://www.blochcubes.org/" target="_blank" rel="noopener">Bloch Cubes</a> — hands-on Bloch-sphere learning: videos, a buildable cube, even Bloch Cube Chess<span class="src">— play</span></li>
+    </ul>
+
+    <div class="connected">
+      <h2 class="sec" style="margin-top:20px">Continue in the graph</h2>
+      <div class="next-links">
+        <div class="nl">Superposition<span class="st">drafting</span></div>
+        <div class="nl">Measurement<span class="st">drafting</span></div>
+        <div class="nl">Quantum Gates<span class="st">drafting</span></div>
+        <div class="nl">Density Matrices<span class="st">published</span></div>
+        <div class="nl">Tensor Products &amp; Entanglement<span class="st">&#128679; coming soon</span></div>
+      </div>
+    </div>
+  </article>
+</Base>
