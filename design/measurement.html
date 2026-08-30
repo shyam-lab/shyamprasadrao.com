@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Measurement — Shyam Prasad Rao</title>
+  <meta name="description" content="Measurement turns a quantum state into a probabilistic classical outcome — the Born rule, collapse, the choice of basis, and the road to POVMs." />
+  <!-- DESIGN REFERENCE — standalone draft of src/pages/atlas/measurement.astro; styles copied from Base.astro -->
+  <style>
+  :root{
+    --paper:#F7F5F0; --ink:#1C1B18; --ink-soft:#4A4842; --faint:#8B887E;
+    --rule:#DAD6CB; --accent:#2F4B4B; --accent-soft:#6E8B87; --mark:#B4552E;
+    --maxw:720px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  header{padding:48px 0 0}
+  .masthead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .name{font-size:26px;font-weight:600;letter-spacing:-.01em;text-decoration:none;color:var(--ink)}
+  .tagline{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12.5px;letter-spacing:.02em;color:var(--faint);margin-top:4px}
+  nav{margin-top:26px;padding-bottom:14px;border-bottom:1px solid var(--rule);display:flex;gap:22px;flex-wrap:wrap;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;letter-spacing:.03em}
+  nav a{text-decoration:none;color:var(--ink-soft);padding-bottom:2px;border-bottom:1.5px solid transparent}
+  nav a:hover{color:var(--ink);border-color:var(--accent)}
+  nav a.active{color:var(--accent);border-color:var(--accent)}
+
+  main{padding:40px 0 80px;min-height:50vh}
+
+  .lede{font-size:19px;line-height:1.55;color:var(--ink-soft);max-width:56ch}
+  .lede strong{color:var(--ink);font-weight:600}
+
+  h2.sec{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin:44px 0 16px;display:flex;align-items:center;gap:10px}
+  h2.sec::before{content:"";width:14px;height:1px;background:var(--mark)}
+
+  .item{display:block;text-decoration:none;color:inherit;padding:16px 0;border-bottom:1px solid var(--rule)}
+  .item:hover .it-title{color:var(--accent)}
+  .it-title{font-size:19px;font-weight:600;letter-spacing:-.01em;transition:color .15s}
+  .it-meta{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11.5px;color:var(--faint);letter-spacing:.02em;margin-top:5px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .tag{color:var(--accent-soft)}
+  .it-desc{font-size:15px;color:var(--ink-soft);margin-top:7px;max-width:60ch}
+  .empty{font-size:14px;color:var(--faint);font-style:italic;padding:14px 0;border-bottom:1px solid var(--rule)}
+
+  .lately{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;color:var(--ink-soft);border-left:2px solid var(--mark);padding:2px 0 2px 14px;margin:22px 0}
+  .lately b{color:var(--ink)}
+
+  /* Atlas section — concept-map plates */
+  .crumbs{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;color:var(--faint);letter-spacing:.02em;margin-bottom:18px}
+  .crumbs a{color:var(--accent-soft);text-decoration:none}
+  .crumbs a:hover{color:var(--accent)}
+  .crumbs .sep{margin:0 6px;opacity:.6}
+
+  .legend{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;color:var(--faint);display:flex;gap:18px;flex-wrap:wrap;margin-top:20px}
+  .dotk{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:0}
+  .dotk.done{background:var(--accent)}
+  .dotk.wip{background:var(--mark)}
+  .dotk.soon{background:transparent;border:1.5px dashed var(--faint)}
+
+  h1.page{font-size:30px;letter-spacing:-.02em;margin:6px 0 4px;line-height:1.2}
+
+  .plate{margin:34px 0 8px}
+  @media(min-width:1000px){.plate{margin-left:-110px;margin-right:-110px}}
+  .plate-caption{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11.5px;color:var(--faint);letter-spacing:.02em;text-align:center;margin-top:6px}
+  svg text{font-family:ui-monospace,"SF Mono",Menlo,monospace;fill:var(--ink)}
+
+  .edge2{stroke:#A9A395;stroke-width:1.1;fill:none}
+  .edge2.rel{stroke-dasharray:5 4}
+  .edge2.lead{stroke-dasharray:1.5 3}
+  .elabel{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:9.5px;font-style:italic;fill:var(--faint)}
+  .elabel-bg{fill:var(--paper);opacity:.85}
+
+  .b{fill:#FCFBF5;stroke-width:1.2}
+  .b.done{stroke:var(--accent)}
+  .b.wip{stroke:var(--mark)}
+  .b.soon{stroke:var(--faint);stroke-dasharray:4 3}
+  .btitle{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:13.5px;font-weight:700;fill:var(--ink)}
+  .soon .btitle, g.soonbox .btitle{fill:var(--faint)}
+  .bitem{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:11.5px;fill:var(--ink-soft)}
+  g.soonbox .bitem{fill:var(--faint)}
+  .bitem.link{fill:var(--accent);font-weight:600}
+  .bitem.link:hover{text-decoration:underline}
+  .cbox rect{fill:var(--ink);stroke:var(--ink)}
+  .cbox text{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;font-weight:600;letter-spacing:.14em;fill:var(--paper)}
+  .maplegend text{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:10px;fill:var(--faint)}
+  .clickbox{cursor:pointer}
+  .clickbox:hover rect.b{fill:#F3F0E7}
+
+  footer{border-top:1px solid var(--rule);padding:26px 0 60px;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;color:var(--faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer a{color:var(--accent-soft);text-decoration:none}
+  footer a:hover{color:var(--accent)}
+
+  /* article body */
+  .post h1{font-size:30px;letter-spacing:-.02em;margin:6px 0 4px;line-height:1.2}
+  .post .it-meta{margin-bottom:26px}
+  .post p{font-size:17px;color:var(--ink-soft);margin:0 0 18px;max-width:62ch}
+  .post h2{font-size:21px;margin:32px 0 12px;color:var(--ink);letter-spacing:-.01em}
+  .post h3{font-size:17px;margin:24px 0 8px;color:var(--ink)}
+  .post a{color:var(--accent);text-underline-offset:2px}
+  .post ul,.post ol{margin:0 0 18px 22px;color:var(--ink-soft);font-size:17px}
+  .post li{margin-bottom:6px}
+  .post strong{color:var(--ink)}
+  .post table{border-collapse:collapse;margin:18px 0;font-size:15px;width:100%}
+  .post th,.post td{border:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink-soft)}
+  .post th{background:#EDEAE1;color:var(--ink);font-weight:600}
+  .post blockquote{border-left:2px solid var(--mark);padding-left:14px;color:var(--faint);font-style:italic;margin:0 0 18px}
+  .post h2 .qnum{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;color:var(--mark);letter-spacing:.1em;vertical-align:3px;margin-right:8px}
+  .back{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;color:var(--accent-soft);text-decoration:none}
+  .back:hover{color:var(--accent)}
+
+  /* evergreen-note signature patterns */
+  .formula{font-family:ui-monospace,"SF Mono",Menlo,monospace;background:#EDEAE1;border:1px solid var(--rule);padding:12px 16px;margin:0 0 18px;font-size:14px;overflow-x:auto;color:var(--ink);line-height:1.9}
+  .formula .dim{color:var(--faint)}
+
+  .pill{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11.5px;letter-spacing:.02em}
+  .pill.pub{color:var(--accent)}
+
+  .reading{margin:0 0 18px}
+  .reading li{list-style:none;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15.5px;color:var(--ink-soft);margin:0}
+  .reading .src{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;color:var(--faint);margin-left:8px}
+
+  .connected{border-top:1px solid var(--rule);margin-top:36px;padding-top:6px}
+  .next-links{display:flex;flex-direction:column}
+  .next-links .nl{font-size:15.5px;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule)}
+  .next-links a.nl{color:var(--accent);text-decoration:none;cursor:pointer}
+  .next-links a.nl:hover{text-underline-offset:2px;text-decoration:underline}
+  .next-links .st{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;color:var(--faint);margin-left:8px}
+
+  /* Bloch sphere figure */
+  .bloch{display:block;margin:0 auto;max-width:400px}
+  .bloch .ax{stroke:var(--rule);stroke-width:1.2}
+  .bloch .sphere{fill:none;stroke:#A9A395;stroke-width:1.2}
+  .bloch .equator{fill:none;stroke:#A9A395;stroke-width:1;stroke-dasharray:4 3}
+  .bloch .statev{stroke:var(--accent);stroke-width:2}
+  .bloch .proj{stroke:var(--accent-soft);stroke-width:1;stroke-dasharray:3 3}
+  .bloch .angw{fill:var(--mark);fill-opacity:.13;stroke:var(--mark);stroke-width:1.1;stroke-linejoin:round}
+  .bloch text{font-size:12px}
+  .bloch text.dim{fill:var(--faint);font-size:10.5px}
+  .bloch text.ang-l{fill:var(--mark);font-style:italic;font-size:12px}
+
+  @media(max-width:520px){
+    .it-title,.lede{font-size:17px}
+    header{padding-top:32px}
+    .post h1,h1.page{font-size:25px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="masthead">
+        <a href="/" class="name">Shyam Prasad Rao</a>
+      </div>
+      <div class="tagline">Hard problems — technical, commercial, and otherwise.</div>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/writing">Writing</a>
+        <a href="/projects">Projects</a>
+        <a href="/atlas" class="active">Atlas</a>
+        <a href="/about">About</a>
+        <a href="https://github.com/shyam-lab" target="_blank" rel="noopener">GitHub&#8599;</a>
+      </nav>
+    </header>
+
+    <main>
+  <div class="crumbs"><a href="/atlas">atlas</a><span class="sep">/</span>quantum information<span class="sep">/</span>measurement</div>
+
+  <article class="post">
+    <h1>Measurement</h1>
+    <div class="it-meta"><span class="pill pub">&#9679; published</span><span>last tended Aug 30, 2026</span><span class="tag">Quantum</span><span>8 min</span></div>
+
+    <h2><span class="qnum">Q1</span>What is it?</h2>
+    <p>Measurement is where a quantum computation finally answers a question. A qubit sits in its state,</p>
+    <div class="formula">|&psi;&#10217; = &alpha;|0&#10217; + &beta;|1&#10217;</div>
+    <p>and the state is amplitudes, not a value. Ask it &ldquo;0 or 1?&rdquo; &mdash; a measurement in the computational basis &#123;|0&#10217;, |1&#10217;&#125; &mdash; and the <strong>Born rule</strong> gives the odds:</p>
+    <div class="formula">P(0) = |&alpha;|&sup2; <span class="dim">&nbsp;&nbsp;and&nbsp;&nbsp;</span> P(1) = |&beta;|&sup2; <span class="dim">&nbsp;&nbsp;with&nbsp;&nbsp;</span> |&alpha;|&sup2; + |&beta;|&sup2; = 1</div>
+    <p>That is the bridge the whole field crosses: <strong>quantum state &#10230; classical outcome</strong>. But measurement is more than reading a value off a register, in two ways. The outcome is only <em>probabilistic</em> &mdash; the state fixes the odds, not the answer. And the measurement <strong>changes the state</strong>. If the outcome is 0, the state is now |0&#10217;; if 1, it is |1&#10217;. Ask again in the same basis and you get the same answer with certainty &mdash; the state was updated to match its own readout. This is what gets called <strong>collapse</strong>, and it makes measurement an <em>action</em>, not an observation:</p>
+    <div class="formula">prepare &rarr; measure &rarr; state changes</div>
+    <blockquote>&ldquo;Measurement just reveals the value the qubit already had&rdquo; &mdash; the coin-flip model again, and it fails here for the same reason it failed the two-Hadamard test: before the measurement there <em>was</em> no value, only amplitudes. The value comes into existence with the outcome.</blockquote>
+
+    <div class="plate">
+      <svg viewBox="0 0 760 340" width="100%" style="display:block;margin:0 auto;max-width:640px" role="img" aria-label="A quantum state plus a choice of measurement basis produces a probability distribution over classical outcomes">
+        <defs>
+          <marker id="marr1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- state box -->
+        <rect class="b" stroke="#A9A395" x="255" y="18" width="250" height="44"/>
+        <text class="btitle" x="380" y="45" text-anchor="middle">|&psi;&#10217; = &alpha;|0&#10217; + &beta;|1&#10217;</text>
+
+        <!-- split to two bases -->
+        <path class="edge2" d="M 330 62 L 210 118" marker-end="url(#marr1)"/>
+        <path class="edge2" d="M 430 62 L 550 118" marker-end="url(#marr1)"/>
+        <rect class="elabel-bg" x="330" y="82" width="100" height="13"/><text class="elabel" x="380" y="92" text-anchor="middle">choose a basis</text>
+
+        <!-- computational basis -->
+        <rect class="b" stroke="#A9A395" x="90" y="118" width="240" height="66"/>
+        <text class="btitle" x="210" y="140" text-anchor="middle">computational basis</text>
+        <text class="bitem" x="210" y="160" text-anchor="middle">&#123; |0&#10217;, |1&#10217; &#125;</text>
+        <text x="210" y="176" text-anchor="middle" style="fill:var(--faint);font-size:10.5px;font-style:italic;font-family:&quot;Iowan Old Style&quot;,Palatino,Georgia,serif">asks: zero or one?</text>
+
+        <!-- X basis -->
+        <rect class="b" stroke="#A9A395" x="430" y="118" width="240" height="66"/>
+        <text class="btitle" x="550" y="140" text-anchor="middle">X basis</text>
+        <text class="bitem" x="550" y="160" text-anchor="middle">&#123; |+&#10217;, |&minus;&#10217; &#125;</text>
+        <text x="550" y="176" text-anchor="middle" style="fill:var(--faint);font-size:10.5px;font-style:italic;font-family:&quot;Iowan Old Style&quot;,Palatino,Georgia,serif">asks: plus or minus?</text>
+
+        <!-- to outcomes -->
+        <path class="edge2" d="M 210 184 L 210 232"/>
+        <path class="edge2" d="M 550 184 L 550 232"/>
+        <path class="edge2" d="M 210 232 L 348 254" marker-end="url(#marr1)"/>
+        <path class="edge2" d="M 550 232 L 412 254" marker-end="url(#marr1)"/>
+        <rect class="elabel-bg" x="130" y="204" width="160" height="13"/><text class="elabel" x="210" y="214" text-anchor="middle">P(0) = |&alpha;|&sup2; &nbsp; P(1) = |&beta;|&sup2;</text>
+        <rect class="elabel-bg" x="470" y="204" width="160" height="13"/><text class="elabel" x="550" y="214" text-anchor="middle">different state, different odds</text>
+
+        <!-- outcome box -->
+        <rect class="b" stroke="#A9A395" x="280" y="244" width="200" height="44"/>
+        <text class="btitle" x="380" y="271" text-anchor="middle">classical outcome</text>
+        <text x="380" y="314" text-anchor="middle" style="fill:var(--faint);font-size:10.5px;font-style:italic;font-family:&quot;Iowan Old Style&quot;,Palatino,Georgia,serif">&hellip; and the state collapses to match it</text>
+      </svg>
+      <div class="plate-caption">fig. 1 &mdash; the outcome statistics depend on the state <em>and</em> on the question you ask it.</div>
+    </div>
+
+    <h2 style="margin-top:40px"><span class="qnum">Q2</span>Why does it exist?</h2>
+    <p>Why a whole node for &ldquo;reading out the answer&rdquo;? Because two facts, easy to state and slow to absorb, sit here &mdash; and most of quantum information lives downstream of them.</p>
+    <p><strong>First: the probabilities are not the state.</strong> Compare</p>
+    <div class="formula">|+&#10217; = (|0&#10217; + |1&#10217;)/&radic;2 <span class="dim">&nbsp;&nbsp;and&nbsp;&nbsp;</span> |&minus;&#10217; = (|0&#10217; &minus; |1&#10217;)/&radic;2</div>
+    <p>Measured in the computational basis, both give P(0) = P(1) = &frac12; &mdash; identical statistics, indistinguishable outcomes. Yet they are different states, separated by a <strong>relative phase</strong>, and the difference is physically real: it is exactly what the second Hadamard on the <a href="/atlas/qubits-and-states">Qubits &amp; States</a> page converts into opposite answers. One basis cannot see everything a state is.</p>
+    <p><strong>Second: the basis is a choice.</strong> Measurement is not the fixed question &ldquo;is it 0 or 1?&rdquo; &mdash; it is a question <em>you pick</em>. Measure |+&#10217; in the computational basis and you get a fair coin. Measure the same state in the X basis &#123;|+&#10217;, |&minus;&#10217;&#125; and you get + with certainty, every time. Same state; definite in one basis, random in another. So the productive question is never &ldquo;what will the qubit say?&rdquo; but &ldquo;what am I asking, and in which basis?&rdquo;:</p>
+    <div class="formula">state + measurement basis &rarr; probability distribution</div>
+    <p>(The two-Hadamard experiment is this in disguise: an H followed by a computational-basis measurement <em>is</em> an X-basis measurement.)</p>
+    <p>Put the two facts together and you get the constraint that shapes all of quantum algorithm design: a state carries amplitudes you cannot simply look at. One measurement yields one outcome and disturbs the rest. Advantage, when it exists, comes from arranging interference <em>before</em> the readout so that the one answer you get is worth having.</p>
+
+    <h2><span class="qnum">Q3</span>How does it connect?</h2>
+    <p>Upstream, measurement is where the two mathematical inheritances of the qubit finally meet: linear algebra supplies the operators, probability theory receives the outcomes. The meeting point is the <strong>projector</strong>. For the computational basis, define</p>
+    <div class="formula">P&#8320; = |0&#10217;&#10216;0| <span class="dim">&nbsp;&nbsp;and&nbsp;&nbsp;</span> P&#8321; = |1&#10217;&#10216;1| <span class="dim">&nbsp;&nbsp;with&nbsp;&nbsp;</span> P&#8320; + P&#8321; = I</div>
+    <p>and the Born rule becomes a statement about operators:</p>
+    <div class="formula">p&#7522; = &#10216;&psi;| P&#7522; |&psi;&#10217; <span class="dim">&nbsp;&nbsp;e.g.&nbsp;&nbsp;</span> p&#8320; = &#10216;&psi;| P&#8320; |&psi;&#10217; = |&alpha;|&sup2;</div>
+    <p>This looks like notation for its own sake until you see what it buys: the operator form is the one that scales &mdash; to several qubits, to mixed states, and past projectors entirely. Downstream sits a hierarchy I am still climbing. <strong>Projective measurement</strong> is the clean case above. The general case is the <strong>POVM</strong> &mdash; positive operator-valued measure &mdash; where each outcome i gets a positive operator E&#7522; and only two conditions survive:</p>
+    <div class="formula">E&#7522; &ge; 0 , <span class="dim">&nbsp;&nbsp;</span> &Sigma;&#7522; E&#7522; = I , <span class="dim">&nbsp;&nbsp;</span> p&#7522; = &#10216;&psi;| E&#7522; |&psi;&#10217;</div>
+    <p>The operators no longer need to be orthogonal projectors, which is precisely what makes POVMs the right language for imperfect and clever measurements alike: distinguishing non-orthogonal states, tomography, noisy readout on real hardware. Sideways, the neighbors: <a href="/atlas/qubits-and-states">the qubit</a> supplies the state being asked; superposition sets the amplitudes the outcome is drawn from; phase hides from one basis and shows up in another; and gates are what you apply <em>before</em> measuring to change what the measurement can see.</p>
+
+    <div class="plate">
+      <svg viewBox="0 0 960 335" width="100%" role="img" aria-label="Where Measurement sits in the map">
+        <defs>
+          <marker id="marr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <!-- edges -->
+        <path class="edge2" d="M 230 110 L 388 118" marker-end="url(#marr2)"/>
+        <rect class="elabel-bg" x="264" y="98" width="90" height="13"/><text class="elabel" x="309" y="108" text-anchor="middle">supplies the state</text>
+
+        <path class="edge2 lead" d="M 590 100 L 700 62" marker-end="url(#marr2)"/>
+        <rect class="elabel-bg" x="606" y="64" width="76" height="13"/><text class="elabel" x="644" y="74" text-anchor="middle">generalizes into</text>
+
+        <path class="edge2 lead" d="M 590 140 L 700 172" marker-end="url(#marr2)"/>
+        <rect class="elabel-bg" x="614" y="146" width="46" height="13"/><text class="elabel" x="637" y="156" text-anchor="middle">leads to</text>
+
+        <path class="edge2 rel" d="M 480 135 L 480 228" marker-end="url(#marr2)"/>
+        <rect class="elabel-bg" x="434" y="188" width="92" height="13"/><text class="elabel" x="480" y="198" text-anchor="middle">relied on by</text>
+
+        <path class="edge2 lead" d="M 855 100 C 890 120, 890 140, 858 158" marker-end="url(#marr2)"/>
+        <rect class="elabel-bg" x="878" y="122" width="52" height="13"/><text class="elabel" x="904" y="132" text-anchor="middle">used by</text>
+
+        <!-- boxes -->
+        <a href="/atlas/qubits-and-states">
+        <g class="clickbox">
+          <rect class="b done" x="30" y="65" width="200" height="93"/>
+          <text class="btitle" x="42" y="85">Qubits &amp; States</text>
+          <text class="bitem link" x="42" y="103">&middot; The state |&psi;&#10217;</text>
+          <text class="bitem" x="42" y="117">&middot; Amplitudes &alpha;, &beta;</text>
+          <text class="bitem" x="42" y="131">&middot; Superposition &amp; phase</text>
+        </g>
+        </a>
+
+        <g class="cbox">
+          <rect x="388" y="90" width="185" height="45"/>
+          <text x="480" y="117" text-anchor="middle">MEASUREMENT</text>
+        </g>
+
+        <g class="soonbox">
+          <rect class="b soon" x="700" y="18" width="170" height="82"/>
+          <text class="btitle" x="712" y="38">Projective &amp; POVMs</text>
+          <text class="bitem" x="712" y="56">&middot; Projectors P&#7522;</text>
+          <text class="bitem" x="712" y="70">&middot; POVM elements E&#7522;</text>
+          <text class="bitem" x="712" y="84">&middot; State discrimination</text>
+        </g>
+
+        <g class="soonbox">
+          <rect class="b soon" x="700" y="158" width="170" height="82"/>
+          <text class="btitle" x="712" y="178">Quantum Tomography</text>
+          <text class="bitem" x="712" y="196">&middot; Many copies, many bases</text>
+          <text class="bitem" x="712" y="210">&middot; Statistics &rarr; state</text>
+          <text class="bitem" x="712" y="224">&middot; Hardware characterization</text>
+        </g>
+
+        <g class="soonbox">
+          <rect class="b soon" x="393" y="228" width="175" height="62"/>
+          <text class="btitle" x="405" y="248">Quantum Cryptography</text>
+          <text class="bitem" x="405" y="266">&middot; BB84 &middot; basis mismatch</text>
+          <text class="bitem" x="405" y="280">&middot; Collapse as security</text>
+        </g>
+
+        <!-- legend -->
+        <g class="maplegend">
+          <line class="edge2" x1="30" y1="318" x2="70" y2="318"/><text x="78" y="322">builds on / enables</text>
+          <line class="edge2 rel" x1="220" y1="318" x2="260" y2="318"/><text x="268" y="322">relies on / runs on</text>
+          <line class="edge2 lead" x1="405" y1="318" x2="445" y2="318"/><text x="453" y="322">leads to</text>
+        </g>
+      </svg>
+      <div class="plate-caption">fig. 2 &mdash; this node in the graph: the qubit flows in; POVMs, tomography, and cryptography flow out.</div>
+    </div>
+
+    <h2 style="margin-top:40px"><span class="qnum">Q4</span>Where is it used?</h2>
+    <p>Every quantum computation ends in one. The conceptual shape of the whole pipeline is:</p>
+    <div class="formula">prepare &rarr; apply gates &rarr; interference &rarr; measure &rarr; classical information</div>
+    <p>The quantum part of the machine manipulates amplitudes; measurement is the only door those amplitudes can leave through, and it is a narrow door &mdash; one shot, one outcome, state disturbed. Three places where that narrowness turns from nuisance into structure. In <strong>error correction</strong>, syndrome measurements are engineered to ask about the <em>noise</em> without asking about the <em>data</em> &mdash; collapse aimed carefully, so the encoded state survives its own diagnosis. In <strong>quantum cryptography</strong>, BB84 turns collapse into a security guarantee: an eavesdropper must measure, a measurement in the wrong basis disturbs the state, and the disturbance is detectable &mdash; the &ldquo;flaw&rdquo; of measurement doing the protocol's work. And on <strong>real hardware</strong>, readout is a physical process with its own error rates &mdash; often worse than the gate errors &mdash; which is why measurement fidelity sits on every spec sheet and why characterizing readout error is its own discipline.</p>
+    <p>To make it concrete: in Qiskit, prepare |+&#10217; and measure &mdash; a fair coin, run after run. Now insert one H before the measurement and run it again: all zeros. Two circuits, one gate apart, opposite statistics &mdash; the cheapest possible demonstration that the measurement you choose is half the physics.</p>
+
+    <h2 class="sec">My open questions</h2>
+    <ul class="reading">
+      <li>What exactly does &ldquo;collapse&rdquo; mean physically &mdash; a process in the world, or an update to my description of it?<span class="src">&mdash; chasing</span></li>
+      <li>How should I think about measurement when the state is mixed &mdash; and on entangled systems, where measuring one qubit changes what I can say about another?<span class="src">&mdash; next nodes</span></li>
+      <li>What is the cleanest intuition for POVMs &mdash; what does a non-projective measurement <em>look like</em> physically?<span class="src">&mdash; open</span></li>
+      <li>How does tomography actually reconstruct a state from measurement statistics &mdash; and how many measurements does it take?<span class="src">&mdash; bridges to benchmarking</span></li>
+      <li>How does measurement error enter real hardware, and how is it separated from gate error?<span class="src">&mdash; bridges to the noise map</span></li>
+    </ul>
+
+    <h2 class="sec">Explore further</h2>
+    <ul class="reading">
+      <li>Nielsen &amp; Chuang, <em>Quantum Computation and Quantum Information</em>, &sect;2.2.3&ndash;2.2.6 &mdash; the measurement postulate, projective measurements, and POVMs in one sitting<span class="src">&mdash; rigor</span></li>
+      <li><a href="https://quantum.country/qcvc" target="_blank" rel="noopener">Matuschak &amp; Nielsen, <em>Quantum Computing for the Very Curious</em></a> &mdash; the measurement sections build the &ldquo;no peeking at amplitudes&rdquo; intuition slowly and well<span class="src">&mdash; intuition</span></li>
+      <li><a href="http://theory.caltech.edu/~preskill/ph229/" target="_blank" rel="noopener">Preskill, <em>Ph219 lecture notes</em>, ch. 3</a> &mdash; generalized measurement and POVMs, for when the projective case starts feeling too clean<span class="src">&mdash; deeper</span></li>
+      <li><a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noopener">Qiskit</a> &mdash; the |+&#10217; experiment from Q4: measure, then H-then-measure, and compare the counts<span class="src">&mdash; hands on</span></li>
+    </ul>
+
+    <div class="connected">
+      <h2 class="sec" style="margin-top:20px">Continue in the graph</h2>
+      <div class="next-links">
+        <a class="nl" href="/atlas/qubits-and-states">Qubits &amp; States<span class="st">published</span></a>
+        <div class="nl">Superposition<span class="st">drafting</span></div>
+        <div class="nl">Projective Measurement &amp; POVMs<span class="st">&#128679; coming soon</span></div>
+        <div class="nl">Quantum Tomography<span class="st">&#128679; coming soon</span></div>
+        <div class="nl">Quantum Cryptography<span class="st">&#128679; coming soon</span></div>
+      </div>
+    </div>
+  </article>
+
+    </main>
+
+    <footer>
+      <span>&copy; 2026 Shyam Prasad Rao</span>
+      <span>
+        <a href="mailto:shyamprasadrao@gmail.com">Email</a> &middot;
+        <a href="https://github.com/shyam-lab" target="_blank" rel="noopener">GitHub</a>
+      </span>
+    </footer>
+  </div>
+</body>
+</html>
