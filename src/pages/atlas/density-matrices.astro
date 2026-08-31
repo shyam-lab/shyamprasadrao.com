@@ -1,0 +1,255 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Density Matrices — Shyam Prasad Rao" description="The density matrix generalizes the state vector — populations and coherence, pure versus mixed, the partial trace, and the road to quantum channels.">
+  <div class="crumbs"><a href="/atlas">atlas</a><span class="sep">/</span>quantum information<span class="sep">/</span>density matrices</div>
+
+  <article class="post">
+    <h1>Density Matrices</h1>
+    <div class="it-meta"><span class="pill pub">&#9679; published</span><span>last tended Aug 30, 2026</span><span class="tag">Quantum</span><span>9 min</span></div>
+
+    <h2><span class="qnum">Q1</span>What is it?</h2>
+    <p>A density matrix is a second way to write down a quantum state &mdash; and a strictly more general one. For a pure state |&psi;&#10217; it is the outer product of the state with itself:</p>
+    <div class="formula">&rho; = |&psi;&#10217;&#10216;&psi;|</div>
+    <p>Written out for |&psi;&#10217; = &alpha;|0&#10217; + &beta;|1&#10217;, that is a 2&times;2 matrix:</p>
+    <div class="formula">&rho; = [ |&alpha;|&sup2;&nbsp;&nbsp;&alpha;&beta;* ; &alpha;*&beta;&nbsp;&nbsp;|&beta;|&sup2; ]</div>
+    <p>The two entries on the diagonal are the measurement probabilities from the <a href="/atlas/measurement">Born rule</a> &mdash; the <strong>populations</strong> of |0&#10217; and |1&#10217;. The two off the diagonal are new: they carry the <strong>coherence</strong> between the basis states, which is where the relative phase has gone. That split is the whole point of the object:</p>
+    <div class="formula">diagonal &rarr; populations <span class="dim">&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span> off-diagonal &rarr; coherence</div>
+    <p>Not every matrix is a state. Three conditions make one physical: &rho; must be <strong>Hermitian</strong> (&rho;&#8224; = &rho;, so probabilities come out real), <strong>positive semidefinite</strong> (&#10216;&phi;|&rho;|&phi;&#10217; &ge; 0, so no negative probabilities), and <strong>unit trace</strong> (Tr &rho; = 1, so they sum to one). Anything satisfying all three is a legitimate quantum state; anything violating one is not.</p>
+    <p>The payoff is that this description covers states a vector cannot write at all. A state vector always describes a system you know exactly. A density matrix can also describe one you know only statistically &mdash; and, as Q3 shows, one that is genuinely indefinite because it is entangled with something else.</p>
+
+    <h2><span class="qnum">Q2</span>Why does it exist?</h2>
+    <p>Because of one distinction that state vectors cannot express. Consider two very different laboratory situations.</p>
+    <p><strong>Situation A.</strong> I hand you a qubit in the superposition</p>
+    <div class="formula">|+&#10217; = (|0&#10217; + |1&#10217;)/&radic;2</div>
+    <p><strong>Situation B.</strong> I flip a fair coin out of your sight and hand you |0&#10217; or |1&#10217; accordingly. You have a qubit; I have a piece of paper saying which.</p>
+    <p>Measure either one in the computational basis and you get 0 half the time and 1 half the time. The statistics are identical. But these are not the same state &mdash; apply a Hadamard first and A gives |0&#10217; every time while B still gives a coin flip. Situation A is a <em>superposition</em>; situation B is a <em>classical mixture</em>. State vectors have no way to write B at all: there is no |&psi;&#10217; that means &ldquo;half of one, half of the other, and I mean it classically.&rdquo; Density matrices write both, and the difference is visible on sight:</p>
+    <div class="formula">&rho;<sub>pure</sub>&nbsp;&nbsp;= &frac12; [ 1&nbsp;&nbsp;&nbsp;<span style="color:var(--mark)">1</span> ; <span style="color:var(--mark)">1</span>&nbsp;&nbsp;&nbsp;1 ] <span class="dim">&nbsp;&nbsp;&larr; coherence in the corners</span><br/>&rho;<sub>mixed</sub> = &frac12; [ 1&nbsp;&nbsp;&nbsp;<span style="color:var(--mark)">0</span> ; <span style="color:var(--mark)">0</span>&nbsp;&nbsp;&nbsp;1 ] <span class="dim">&nbsp;&nbsp;&larr; no coherence at all</span></div>
+    <p>Same diagonal &mdash; same computational-basis statistics, as promised. Different off-diagonal: the superposition has coherence, the coin flip has none. <strong>The off-diagonal terms are the mathematical difference between a quantum superposition and mere ignorance</strong>, and that sentence is the reason this node exists.</p>
+
+    <h3>Reading the entries: one qubit</h3>
+    <p>The 50/50 case is clean but symmetric, which hides the rule. Take a lopsided state instead:</p>
+    <div class="formula">|&psi;&#10217; = ( &radic;3 |0&#10217; + |1&#10217; ) / 2 <span class="dim">&nbsp;&nbsp;so&nbsp;&nbsp;</span> &alpha; = &radic;3/2 , &beta; = 1/2</div>
+    <p>Its density matrix &rho; = |&psi;&#10217;&#10216;&psi;| has entries indexed by the basis states &mdash; row and column both run over |0&#10217; and |1&#10217;:</p>
+    <div class="mtx">
+      <table>
+        <tr><th></th><th>|0&#10217;</th><th>|1&#10217;</th></tr>
+        <tr><th class="rowh">&#10216;0|</th><td class="pop">3/4</td><td class="coh">&radic;3/4</td></tr>
+        <tr><th class="rowh">&#10216;1|</th><td class="coh">&radic;3/4</td><td class="pop">1/4</td></tr>
+      </table>
+      <div class="mtx-key"><span class="kp">&#9632;</span> diagonal &mdash; P(0) = 3/4, P(1) = 1/4 &nbsp;&nbsp;&middot;&nbsp;&nbsp; <span class="kc">&#9632;</span> off-diagonal &mdash; coherence between |0&#10217; and |1&#10217;</div>
+    </div>
+    <p>Read straight down the diagonal and you have the measurement probabilities, no calculation required: 3/4 and 1/4, summing to 1 because Tr&nbsp;&rho; = 1. The two entries off the diagonal are &alpha;&beta;* = &radic;3/4 &asymp; 0.43 &mdash; not a probability of anything, and not observable in this basis. Now let the qubit sit in a noisy environment until its phase is scrambled:</p>
+    <div class="mtx">
+      <table>
+        <tr><th></th><th>|0&#10217;</th><th>|1&#10217;</th></tr>
+        <tr><th class="rowh">&#10216;0|</th><td class="pop">3/4</td><td>0</td></tr>
+        <tr><th class="rowh">&#10216;1|</th><td>0</td><td class="pop">1/4</td></tr>
+      </table>
+      <div class="mtx-key">same probabilities &mdash; 3/4 and 1/4 &mdash; but the coherence is gone (purity drops from 1 to 5/8)</div>
+    </div>
+    <p>Measure in the computational basis a million times and these two states are indistinguishable. Apply a Hadamard first and they are not. <strong>Decoherence is the off-diagonal entries going to zero while the diagonal sits still</strong> &mdash; which is why T&#8322; is quoted separately from T&#8321; on a hardware spec sheet.</p>
+
+    <h3>The same reading: two qubits</h3>
+    <p>Nothing changes with more qubits except the size of the grid. Two qubits have four basis states, so &rho; is 4&times;4, indexed by |00&#10217;, |01&#10217;, |10&#10217;, |11&#10217;. Take the Bell state:</p>
+    <div class="formula">|&Phi;&#8314;&#10217; = ( |00&#10217; + |11&#10217; ) / &radic;2</div>
+    <div class="mtx">
+      <table>
+        <tr><th></th><th>|00&#10217;</th><th>|01&#10217;</th><th>|10&#10217;</th><th>|11&#10217;</th></tr>
+        <tr><th class="rowh">&#10216;00|</th><td class="pop">1/2</td><td>0</td><td>0</td><td class="coh">1/2</td></tr>
+        <tr><th class="rowh">&#10216;01|</th><td>0</td><td class="pop">0</td><td>0</td><td>0</td></tr>
+        <tr><th class="rowh">&#10216;10|</th><td>0</td><td>0</td><td class="pop">0</td><td>0</td></tr>
+        <tr><th class="rowh">&#10216;11|</th><td class="coh">1/2</td><td>0</td><td>0</td><td class="pop">1/2</td></tr>
+      </table>
+      <div class="mtx-key"><span class="kp">&#9632;</span> diagonal &mdash; P(00) = P(11) = 1/2, P(01) = P(10) = 0 &nbsp;&nbsp;&middot;&nbsp;&nbsp; <span class="kc">&#9632;</span> corners &mdash; coherence between |00&#10217; and |11&#10217;</div>
+    </div>
+    <p>The diagonal says exactly what you would expect from a Bell pair: measure both qubits and you get 00 or 11 with equal probability, never 01 or 10. The corners are the entanglement. Now compare a state that is <em>correlated but not entangled</em> &mdash; I flip a coin and prepare either |00&#10217; or |11&#10217;:</p>
+    <div class="mtx">
+      <table>
+        <tr><th></th><th>|00&#10217;</th><th>|01&#10217;</th><th>|10&#10217;</th><th>|11&#10217;</th></tr>
+        <tr><th class="rowh">&#10216;00|</th><td class="pop">1/2</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><th class="rowh">&#10216;01|</th><td>0</td><td class="pop">0</td><td>0</td><td>0</td></tr>
+        <tr><th class="rowh">&#10216;10|</th><td>0</td><td>0</td><td class="pop">0</td><td>0</td></tr>
+        <tr><th class="rowh">&#10216;11|</th><td>0</td><td>0</td><td>0</td><td class="pop">1/2</td></tr>
+      </table>
+      <div class="mtx-key">identical diagonal &mdash; identical measurement statistics &mdash; but no corners, so no entanglement</div>
+    </div>
+    <p>Both states give perfectly correlated outcomes. Only one of them violates a Bell inequality, and the difference lives entirely in two corner entries. So the rule reads the same at any size:</p>
+    <div class="formula">down the diagonal &rarr; what a measurement will give you<br/>off the diagonal &rarr; what is still quantum</div>
+    <p>There is a number that compresses this. <strong>Purity</strong> is</p>
+    <div class="formula">Tr(&rho;&sup2;) = 1 <span class="dim">&nbsp;&nbsp;pure&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span> Tr(&rho;&sup2;) &lt; 1 <span class="dim">&nbsp;&nbsp;mixed&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span> Tr(&rho;&sup2;) = &frac12; <span class="dim">&nbsp;&nbsp;maximally mixed</span></div>
+    <p>and it turns &ldquo;how quantum is this state still?&rdquo; into a single scalar you can track as a system decoheres.</p>
+
+    <div class="plate">
+      <svg class="bloch" viewBox="0 0 400 380" width="100%" role="img" aria-label="The Bloch ball: pure states on the surface, mixed states inside, the maximally mixed state at the centre">
+        <defs>
+          <marker id="darr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#B4552E" stroke-width="1.4"/>
+          </marker>
+        </defs>
+        <circle class="sphere" cx="200" cy="180" r="130"/>
+        <ellipse class="equator" cx="200" cy="180" rx="130" ry="42"/>
+        <line class="ax" x1="200" y1="38" x2="200" y2="322"/>
+        <line class="ax" x1="58" y1="180" x2="342" y2="180"/>
+
+        <!-- pure state: vector reaching the surface -->
+        <line class="statev" x1="200" y1="180" x2="288" y2="98"/>
+        <circle cx="288" cy="98" r="3.5" fill="var(--accent)"/>
+        <text x="298" y="92">pure</text>
+        <text class="dim" x="298" y="106">|r| = 1</text>
+
+        <!-- mixed state: shorter vector, inside -->
+        <line x1="200" y1="180" x2="244" y2="139" stroke="var(--mark)" stroke-width="2"/>
+        <circle cx="244" cy="139" r="3.5" fill="var(--mark)"/>
+        <text class="ang-l" x="230" y="112" text-anchor="end" style="font-style:normal">mixed</text>
+        <text class="dim" x="230" y="126" text-anchor="end">|r| &lt; 1</text>
+
+        <!-- decoherence arrow from surface toward centre -->
+        <path d="M 297 107 Q 296 152 256 145" fill="none" stroke="var(--mark)" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#darr)"/>
+        <text class="ang-l" x="304" y="150">decoherence</text>
+
+        <!-- maximally mixed at centre -->
+        <circle cx="200" cy="180" r="3.5" fill="none" stroke="var(--faint)" stroke-width="1.5"/>
+        <text class="dim" x="150" y="200" text-anchor="end">I/2</text>
+        <line class="ax" x1="152" y1="196" x2="194" y2="181"/>
+
+        <text x="192" y="26" text-anchor="middle">|0&#10217;</text>
+        <text x="192" y="342" text-anchor="middle">|1&#10217;</text>
+        <text class="dim" x="200" y="368" text-anchor="middle">surface = pure &middot; interior = mixed &middot; centre = no information</text>
+      </svg>
+      <div class="plate-caption">fig. 1 &mdash; the Bloch <em>ball</em>. The sphere from the qubit page was only its skin; decoherence is the vector shrinking inward.</div>
+    </div>
+
+    <h2 style="margin-top:40px"><span class="qnum">Q3</span>How does it connect?</h2>
+    <p>Three pieces of machinery hang off this node, and each one replaces something narrower.</p>
+    <p><strong>Measurement gets simpler, not harder.</strong> The Born rule in operator form was p&#7522; = &#10216;&psi;|P&#7522;|&psi;&#10217;, which needs a state vector. In density-matrix language it becomes a trace:</p>
+    <div class="formula">p&#7522; = Tr(&rho; P&#7522;)</div>
+    <p>and this one expression works for pure and mixed states alike &mdash; and, swapping P&#7522; for a POVM element E&#7522;, for any measurement whatsoever. One formula now covers the whole of the <a href="/atlas/measurement">measurement</a> node.</p>
+    <p><strong>The geometry gets an interior.</strong> Any single-qubit density matrix can be written with three real numbers:</p>
+    <div class="formula">&rho; = &frac12; ( I + r&#8407; &middot; &sigma;&#8407; ) <span class="dim">&nbsp;&nbsp;where&nbsp;&nbsp;</span> &sigma;&#8407; = (X, Y, Z)</div>
+    <p>The Bloch vector r&#8407; has |r&#8407;| = 1 exactly for pure states and |r&#8407;| &lt; 1 for mixed ones, with r&#8407; = 0 &mdash; the centre &mdash; being &rho; = I/2, the state that carries no information at all. The Bloch <em>sphere</em> of the qubit page was only the surface of a solid ball, and fig. 1 is what was hiding inside it.</p>
+    <p><strong>Subsystems become describable.</strong> Given a joint state &rho;<sub>AB</sub>, the <strong>partial trace</strong> extracts what A alone looks like:</p>
+    <div class="formula">&rho;<sub>A</sub> = Tr<sub>B</sub>( &rho;<sub>AB</sub> )</div>
+    <p>And here is the result that makes this node genuinely surprising rather than merely convenient. Take the Bell state from Q2 &mdash; a perfectly known, perfectly pure joint state, purity 1. Trace out either qubit and you get</p>
+    <div class="formula">&rho;<sub>A</sub> = &rho;<sub>B</sub> = I/2</div>
+    <p>&mdash; the maximally mixed state, the centre of the ball, the state of maximum ignorance. The whole is pure and the parts are random. That is not a limitation of the notation; it is what entanglement <em>is</em>, and no state-vector picture of a single qubit can express it. Mixedness, it turns out, has two sources: classical ignorance about which state was prepared, and quantum entanglement with something you are not looking at. The density matrix cannot tell them apart &mdash; which is itself worth sitting with.</p>
+
+    <div class="plate">
+      <svg viewBox="0 0 960 335" width="100%" role="img" aria-label="Where Density Matrices sits in the map">
+        <defs>
+          <marker id="darr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#A9A395" stroke-width="1.3"/>
+          </marker>
+        </defs>
+
+        <path class="edge2" d="M 230 62 L 388 104" marker-end="url(#darr2)"/>
+        <rect class="elabel-bg" x="268" y="72" width="66" height="13"/><text class="elabel" x="301" y="82" text-anchor="middle">generalized by</text>
+
+        <path class="edge2" d="M 230 176 L 388 128" marker-end="url(#darr2)"/>
+        <rect class="elabel-bg" x="268" y="150" width="66" height="13"/><text class="elabel" x="301" y="160" text-anchor="middle">read out via</text>
+
+        <path class="edge2 lead" d="M 590 100 L 700 62" marker-end="url(#darr2)"/>
+        <rect class="elabel-bg" x="608" y="64" width="62" height="13"/><text class="elabel" x="639" y="74" text-anchor="middle">splits into</text>
+
+        <path class="edge2 lead" d="M 590 140 L 700 172" marker-end="url(#darr2)"/>
+        <rect class="elabel-bg" x="608" y="146" width="66" height="13"/><text class="elabel" x="641" y="156" text-anchor="middle">evolves under</text>
+
+        <path class="edge2 rel" d="M 480 135 L 480 228" marker-end="url(#darr2)"/>
+        <rect class="elabel-bg" x="432" y="188" width="96" height="13"/><text class="elabel" x="480" y="198" text-anchor="middle">makes noise visible</text>
+
+        <a href="/atlas/qubits-and-states">
+        <g class="clickbox">
+          <rect class="b done" x="30" y="18" width="200" height="82"/>
+          <text class="btitle" x="42" y="38">Qubits &amp; States</text>
+          <text class="bitem link" x="42" y="56">&middot; State vector |&psi;&#10217;</text>
+          <text class="bitem" x="42" y="70">&middot; Bloch sphere surface</text>
+          <text class="bitem" x="42" y="84">&middot; Pure states only</text>
+        </g>
+        </a>
+
+        <a href="/atlas/measurement">
+        <g class="clickbox">
+          <rect class="b done" x="30" y="158" width="200" height="82"/>
+          <text class="btitle" x="42" y="178">Measurement</text>
+          <text class="bitem link" x="42" y="196">&middot; Born rule</text>
+          <text class="bitem" x="42" y="210">&middot; Projectors &middot; POVMs</text>
+          <text class="bitem" x="42" y="224">&middot; p&#7522; = Tr(&rho;P&#7522;)</text>
+        </g>
+        </a>
+
+        <g class="cbox">
+          <rect x="388" y="90" width="185" height="45"/>
+          <text x="480" y="117" text-anchor="middle">DENSITY MATRICES</text>
+        </g>
+
+        <g class="soonbox">
+          <rect class="b soon" x="700" y="18" width="205" height="82"/>
+          <text class="btitle" x="712" y="38">Partial Trace &amp; Entanglement</text>
+          <text class="bitem" x="712" y="56">&middot; &rho;&#8336; = Tr&#8342;(&rho;&#8336;&#8342;)</text>
+          <text class="bitem" x="712" y="70">&middot; Reduced states</text>
+          <text class="bitem" x="712" y="84">&middot; Bell state &rarr; I/2</text>
+        </g>
+
+        <g class="soonbox">
+          <rect class="b soon" x="700" y="158" width="205" height="82"/>
+          <text class="btitle" x="712" y="178">Quantum Channels</text>
+          <text class="bitem" x="712" y="196">&middot; &rho; &rarr; U&rho;U&#8224; (ideal)</text>
+          <text class="bitem" x="712" y="210">&middot; &rho; &rarr; &#8496;(&rho;) (real)</text>
+          <text class="bitem" x="712" y="224">&middot; CPTP &middot; Kraus operators</text>
+        </g>
+
+        <a href="/atlas/noise-error-correction" class="clickbox">
+          <rect class="b done" x="393" y="228" width="175" height="62"/>
+          <text class="btitle" x="405" y="248">Noise &amp; Decoherence</text>
+          <text class="bitem" x="405" y="266">&middot; T1, T2 &middot; coherence decay</text>
+          <text class="bitem link" x="405" y="280">open this map &rarr;</text>
+        </a>
+
+        <g class="maplegend">
+          <line class="edge2" x1="30" y1="318" x2="70" y2="318"/><text x="78" y="322">builds on / enables</text>
+          <line class="edge2 rel" x1="220" y1="318" x2="260" y2="318"/><text x="268" y="322">relies on / runs on</text>
+          <line class="edge2 lead" x1="405" y1="318" x2="445" y2="318"/><text x="453" y="322">leads to</text>
+        </g>
+      </svg>
+      <div class="plate-caption">fig. 2 &mdash; this node in the graph: it generalizes the state vector, absorbs measurement, and opens the road to channels and noise.</div>
+    </div>
+
+    <h2 style="margin-top:40px"><span class="qnum">Q4</span>Where is it used?</h2>
+    <p>Wherever a quantum system is not perfectly isolated &mdash; which is to say, wherever there is real hardware. An ideal closed system evolves by unitary rotation, and in this language that reads</p>
+    <div class="formula">&rho; &rarr; U &rho; U&#8224;</div>
+    <p>A real one interacts with an environment it is entangled with and cannot track, so the honest description is the more general map</p>
+    <div class="formula">&rho; &rarr; &#8496;(&rho;) <span class="dim">&nbsp;&nbsp;a quantum channel: completely positive, trace preserving</span></div>
+    <p>and the machinery for writing those maps down &mdash; CPTP, Kraus operators &mdash; is the next node over. This is also where the coherence terms stop being an abstraction. On a real qubit, <strong>T&#8321;</strong> is the timescale on which the diagonal decays toward equilibrium and <strong>T&#8322;</strong> the timescale on which the off-diagonal terms decay toward zero &mdash; decoherence is literally the off-diagonal entries of &rho; going to zero, the Bloch vector shrinking inward in fig. 1 until nothing quantum is left. Every number on a hardware spec sheet about coherence time is a statement about this matrix.</p>
+    <p>Two more homes. <strong>Quantum tomography</strong> exists to reconstruct &rho; from measurement statistics, which is only a coherent goal because &rho; is the complete description of what a real, noisy, possibly-entangled state is. And <strong>error correction</strong> needs mixed states from the start: a corrupted logical qubit is not a vector, and the whole <a href="/atlas/noise-error-correction">Noise &amp; Error Correction</a> map is written in this language.</p>
+    <p>To make it concrete: in Qiskit, build a Bell pair, take the partial trace over one qubit, and print the reduced state. Seeing I/2 come back from a state you know exactly is the moment this node stops being notation.</p>
+
+    <h2 class="sec">My open questions</h2>
+    <ul class="reading">
+      <li>What is the cleanest intuition for the off-diagonal terms &mdash; is there a picture better than &ldquo;the phase information lives here&rdquo;?<span class="src">&mdash; chasing</span></li>
+      <li>How exactly does a pure state become mixed through interaction with an environment &mdash; step by step, not just in the limit?<span class="src">&mdash; open</span></li>
+      <li>Why does tracing out part of an entangled pure state produce a mixed state? I can compute it; I can't yet feel it.<span class="src">&mdash; the one that nags</span></li>
+      <li>What is the physical meaning of complete positivity, as opposed to plain positivity?<span class="src">&mdash; next node</span></li>
+      <li>How should I think about the Kraus representation geometrically?<span class="src">&mdash; next node</span></li>
+      <li>At what point does it become more useful to think in states and channels than in individual qubits?<span class="src">&mdash; a question about taste, maybe</span></li>
+    </ul>
+
+    <h2 class="sec">Explore further</h2>
+    <ul class="reading">
+      <li>Nielsen &amp; Chuang, <em>Quantum Computation and Quantum Information</em>, &sect;2.4 &mdash; the density operator, ensembles, and the partial trace, in the order they should be learned<span class="src">&mdash; rigor</span></li>
+      <li><a href="http://theory.caltech.edu/~preskill/ph229/" target="_blank" rel="noopener">Preskill, <em>Ph219 lecture notes</em>, ch. 2</a> &mdash; &ldquo;States and Ensembles&rdquo;; the treatment of why a subsystem of a pure state is mixed is the best I have found<span class="src">&mdash; deeper</span></li>
+      <li><a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noopener">Qiskit</a> &mdash; <code>DensityMatrix</code> and <code>partial_trace</code>: build a Bell pair and watch I/2 fall out<span class="src">&mdash; hands on</span></li>
+      <li><a href="https://www.blochcubes.org/" target="_blank" rel="noopener">Bloch Cubes</a> &mdash; useful again here, now for the ball's interior rather than its surface<span class="src">&mdash; play</span></li>
+    </ul>
+
+    <div class="connected">
+      <h2 class="sec" style="margin-top:20px">Continue in the graph</h2>
+      <div class="next-links">
+        <a class="nl" href="/atlas/qubits-and-states">Qubits &amp; States<span class="st">published</span></a>
+        <a class="nl" href="/atlas/measurement">Measurement<span class="st">published</span></a>
+        <div class="nl">Partial Trace &amp; Entanglement<span class="st">&#128679; coming soon</span></div>
+        <div class="nl">Quantum Channels &amp; CPTP Maps<span class="st">&#128679; coming soon</span></div>
+        <a class="nl" href="/atlas/noise-error-correction">Noise &amp; Error Correction<span class="st">map</span></a>
+      </div>
+    </div>
+  </article>
+</Base>
