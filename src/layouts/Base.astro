@@ -1,5 +1,7 @@
 ---
 // Base layout — every page wraps in this. Header, nav, footer, and all styles live here.
+// KaTeX stylesheet for $$…$$ math in posts (plugins wired up in astro.config.mjs).
+import 'katex/dist/katex.min.css';
 const { title = 'Shyam Prasad Rao', description = 'Hard problems — technical, commercial, and otherwise.' } = Astro.props;
 const path = Astro.url.pathname;
 const isActive = (href) => (href === '/' ? path === '/' : path.startsWith(href));
@@ -151,8 +153,15 @@ const nav = [
   .post table{border-collapse:collapse;margin:18px 0;font-size:15px;width:100%}
   .post th,.post td{border:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink-soft)}
   .post th{background:#EDEAE1;color:var(--ink);font-weight:600}
+  .post th[align="right"],.post td[align="right"]{text-align:right}
+  .post th[align="center"],.post td[align="center"]{text-align:center}
   .post blockquote{border-left:2px solid var(--mark);padding-left:14px;color:var(--faint);font-style:italic;margin:0 0 18px}
   .post h2 .qnum{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;color:var(--mark);letter-spacing:.1em;vertical-align:3px;margin-right:8px}
+  /* math — KaTeX output, tuned to the article measure and palette */
+  .post .katex{font-size:1.02em;color:var(--ink);white-space:nowrap}
+  .post .katex-display{margin:22px 0;padding:2px 0;overflow-x:auto;overflow-y:hidden;color:var(--ink)}
+  .post .katex-display > .katex{font-size:1.08em}
+
   .back{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;color:var(--accent-soft);text-decoration:none}
   .back:hover{color:var(--accent)}
 
