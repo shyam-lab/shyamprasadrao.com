@@ -5,8 +5,22 @@ Personal site of Shyam Prasad Rao — essays, research notes, projects, and (pla
 ## Architecture — read this before touching anything
 
 - `src/layouts/Base.astro` — **single source of truth for all styling** (global `<style is:global>` block), plus the header, nav, and footer. Every page wraps in this. Do not add per-page stylesheets; extend Base.astro instead.
-- `src/content/posts/*.md` — posts, validated by `src/content.config.ts`. Frontmatter: `title`, `date`, `topic` (one of: Strategy | Quantum | AI | Hardware | Reading), `summary`, optional `draft: true` to keep unpublished.
+- `src/content/posts/*.md` — posts, validated by `src/content.config.ts`. Frontmatter: `title`, `date`, `topic` (one of: Personal | Strategy | Quantum | AI | Hardware | Reading), `summary`, optional `draft: true` to keep unpublished.
 - `src/pages/` — `index.astro` (home), `about.astro`, `writing/index.astro` + `writing/[slug].astro`, `projects/index.astro`.
+
+### Math in posts (added Sep 2026)
+
+LaTeX is rendered at build time by KaTeX — `remark-math` + `rehype-katex` in `astro.config.mjs`, stylesheet imported once at the top of `Base.astro`. Astro 7's default Markdown processor doesn't take unified plugins, so `@astrojs/markdown-remark` is a dependency; it makes the build fall back to the unified pipeline (verified to render every pre-existing post byte-identically).
+
+**Delimiters are `$$…$$` for both inline and display math.** Single-dollar math is deliberately off (`singleDollarTextMath: false`) so prices like "$5M" in a post stay plain text. Display math needs the `$$` on their own lines:
+
+```
+$$
+\mu^{\top} w - \gamma\, w^{\top} \Sigma w
+$$
+```
+
+Math styling lives with the other `.post` rules in Base.astro: inline `.katex` is set `white-space:nowrap` so a formula never breaks mid-expression, and `.katex-display` scrolls horizontally rather than widening the column.
 
 ## Deploy workflow
 
